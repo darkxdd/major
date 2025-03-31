@@ -442,12 +442,25 @@ body.dark-mode .toggle-password {
 
 #send-message-btn {
     padding: 10px 15px;
+    margin-right: 10px;
 }
 
 #clear-chat-btn {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#clear-chat-btn i {
+    font-size: 1rem;
+}
+
+/* Remove the old clear-chat-btn styling that positioned it at the bottom */
+/* #clear-chat-btn {
     margin: 1rem;
     align-self: flex-end;
-}
+} */
 
 /* History Page Styles */
 .history-container {
