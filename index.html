@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSense - AI-powered Health Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="auth-container">
+        <div class="auth-card" id="login-card">
+            <div class="logo-container">
+                <i class="fas fa-heartbeat logo-icon"></i>
+                <h1 style="margin-top: 12px;">MediSense</h1>
+            </div>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="login-password" required autocomplete="current-password">
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
+                </div>
+                <div class="error-message" id="login-error"></div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p class="form-switch">Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+        </div>
+
+        <div class="auth-card" id="signup-card">
+            <div class="logo-container">
+                <i class="fas fa-heartbeat logo-icon"></i>
+                <h1 style="margin-top: 12px;">MediSense</h1>
+            </div>
+            <h2>Create Account</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="signup-password" required autocomplete="new-password">
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
+                </div>
+                <div class="error-message" id="signup-error"></div>
+                <button type="submit" class="btn-primary">Sign Up</button>
+            </form>
+            <p class="form-switch">Already have an account? <a href="#" id="show-login">Login</a></p>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-heartbeat logo-icon"></i>
+                <h1 style="margin-top: 12px;">MediSense</h1>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item active" data-page="prediction">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>Disease Prediction</span>
+                </li>
+                <li class="nav-item" data-page="chatbot">
+                    <i class="fas fa-comment-medical"></i>
+                    <span>MediSense Chat</span>
+                </li>
+                <li class="nav-item" data-page="history">
+                    <i class="fas fa-history"></i>
+                    <span>Prediction History</span>
+                </li>
+            </ul>
+            <div class="user-section">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="user-name">User</span>
+                </div>
+                <button id="dark-mode-toggle" class="btn-secondary">
+                    <i class="fas fa-moon"></i>
+                    <span>Toggle Theme</span>
+                </button>
+                <button id="logout-btn" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page" id="prediction-page">
+                <h2>Disease Prediction & Drug Recommendation</h2>
+                
+                <!-- Adding information about supported conditions -->
+                <div class="info-box" id="conditions-info-box">
+                    <p>MediSense can predict various conditions but provides medication recommendations primarily for: 
+                    <span class="condition-tag">Pain</span>
+                    <span class="condition-tag">Birth Control</span>
+                    <span class="condition-tag">Depression</span>
+                    <span class="condition-tag">ADHD</span>
+                    <span class="condition-tag">Insomnia</span>
+                    <span class="condition-tag">Obesity</span>
+                    <span class="condition-tag">Acne</span>
+                    <span class="condition-tag">Bipolar Disorder</span>
+                    <span class="condition-tag">Weight Loss</span>
+                    <span class="condition-tag">Anxiety</span>
+                    </p>
+                    <p class="small-note">For other conditions, MediSense can provide predictions but may not offer medication recommendations.</p>
+                </div>
+                
+                <div class="input-container">
+                    <label for="symptoms-input">Describe your symptoms:</label>
+                    <textarea id="symptoms-input" placeholder="Please describe your symptoms in detail. For example: I've been having a persistent cough for 3 days, with a mild fever and fatigue."></textarea>
+                    <div class="button-group">
+                        <button id="predict-btn" class="btn-primary">Submit</button>
+                        <button id="clear-symptoms-btn" class="btn-secondary">Clear</button>
+                    </div>
+                </div>
+                <div id="prediction-results" class="hidden">
+                    <div class="result-section">
+                        <h3>Most Likely Predicted Condition</h3>
+                        <p id="primary-condition"></p>
+                    </div>
+                    <div class="results-row">
+                        <div class="result-section">
+                            <h3>Condition Predictions</h3>
+                            <div id="condition-predictions"></div>
+                        </div>
+                        <div class="result-section">
+                            <h3>Drug Recommendations</h3>
+                            <div id="drug-recommendations"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="prediction-loading" class="loading-container hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Analyzing your symptoms...</p>
+                </div>
+                <div id="prediction-error" class="error-message hidden"></div>
+            </div>
+
+            <div class="page hidden" id="chatbot-page">
+                <h2>MediSense Chatbot</h2>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Type your message...">
+                        <button id="send-message-btn" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <button id="clear-chat-btn" class="btn-secondary">Clear Chat</button>
+                </div>
+                <div id="chat-loading" class="loading-container hidden">
+                    <div class="loading-spinner"></div>
+                    <p>MediSense is thinking...</p>
+                </div>
+                <div id="chat-error" class="error-message hidden"></div>
+            </div>
+
+            <div class="page hidden" id="history-page">
+                <h2>Your Prediction History</h2>
+                <div class="history-container">
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Symptoms Described</th>
+                                <th>Predicted Condition</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                            <!-- History entries will be added here dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="no-history-message" class="hidden">
+                        <p>No prediction history found. Try the Disease Prediction feature to see your history here.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="disclaimer-banner">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>Disclaimer: MediSense is an AI tool and its predictions, recommendations, and chat responses are not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for any health concerns.</p>
+        <button class="close-btn" id="close-disclaimer">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <script type="module" src="gradio.js"></script>
+    <script src="auth.js"></script>
+    <script src="predict.js"></script>
+    <script src="chat.js"></script>
+    <script src="history.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
