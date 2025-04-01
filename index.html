@@ -6,6 +6,9 @@
     <title>MediSense - AI-powered Health Assistant</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg" href="favicon.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
     <div id="auth-container">
@@ -116,7 +119,7 @@
                     <span class="condition-tag">Weight Loss</span>
                     <span class="condition-tag">Anxiety</span>
                     </p>
-                    <p class="small-note">For other conditions, MediSense can provide predictions but may not offer medication recommendations.</p>
+                    <p class="small-note">For other conditions, MediSense can provide predictions and you can use drugs.com website to search for medication information.</p>
                 </div>
                 
                 <div class="input-container">
@@ -131,6 +134,10 @@
                     <div class="result-section">
                         <h3>Most Likely Predicted Condition</h3>
                         <p id="primary-condition"></p>
+                        <button id="drugs-com-link" class="btn-secondary" style="margin-top: 10px;">
+                            <i class="fa-solid fa-pills"></i>
+                            <span style="margin-left: 8px;">View Medications on Drugs.com</span>
+                        </button>
                     </div>
                     <div class="results-row">
                         <div class="result-section">

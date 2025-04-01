@@ -56,11 +56,20 @@ document.getElementById('predict-btn').addEventListener('click', async function(
         
         // Display results
         document.getElementById('condition-predictions').innerHTML = formatConditionPredictions(conditionPredictions);
-        document.getElementById('primary-condition').textContent = verifiedCondition || predictedCondition;
+        const condition = verifiedCondition || predictedCondition;
+        document.getElementById('primary-condition').textContent = condition;
+        
+        // Update drugs.com link
+        const drugsComLink = document.getElementById('drugs-com-link');
+        drugsComLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(`https://www.drugs.com/search.php?searchterm=${encodeURIComponent(condition)}`, '_blank');
+        });
+        
         document.getElementById('drug-recommendations').innerHTML = formatRecommendedDrugs(recommendedDrugs);
         
         // Store prediction in history
-        savePrediction(symptomsInput, verifiedCondition || predictedCondition);
+        savePrediction(symptomsInput, condition);
         
         // Show results
         resultsElement.classList.remove('hidden');
