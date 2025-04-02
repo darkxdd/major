@@ -43,6 +43,16 @@ function displayPredictionHistory() {
         conditionCell.textContent = prediction.condition;
         row.appendChild(conditionCell);
         
+        // Create drugs.com link cell
+        const drugsLinkCell = document.createElement('td');
+        const drugsLink = document.createElement('a');
+        drugsLink.href = `https://www.drugs.com/search.php?searchterm=${encodeURIComponent(prediction.condition)}`;
+        drugsLink.target = '_blank';
+        drugsLink.className = 'drugs-com-link';
+        drugsLink.innerHTML = '<i class="fa-solid fa-pills"></i> View Medications';
+        drugsLinkCell.appendChild(drugsLink);
+        row.appendChild(drugsLinkCell);
+        
         historyBody.appendChild(row);
     });
 }
