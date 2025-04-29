@@ -80,7 +80,7 @@ async function getVerifiedConditionPredictions(symptoms) {
 Requirements:
 1. List EXACTLY 10 conditions, no more and no less
 2. Assign a percentage likelihood to each condition
-3. Ensure all percentages sum precisely to 100%
+3. Percentages can include up to one decimal place (e.g., 0.5%) and must sum exactly to 100%
 4. Order conditions from highest to lowest percentage
 5. Only include medically plausible conditions given the symptoms
 6. Do not include any explanations, warnings, or disclaimers
@@ -123,8 +123,8 @@ Do not deviate from this format. The condition name should be on the left and th
                     const predictions = [];
                     
                     for (const line of lines) {
-                        // Match pattern like "Condition: 75%"
-                        const match = line.match(/(.+?):\s*(\d+)%/);
+                        // Match pattern like "Condition: 75%" or "Condition: 0.5%"
+                        const match = line.match(/(.+?):\s*(\d+(?:\.\d+)?)%/);
                         if (match) {
                             predictions.push({
                                 condition: match[1].trim(),
@@ -263,7 +263,7 @@ function extractRecommendedDrugs(html) {
 function formatConditionPredictions(predictions) {
     return predictions.map((pred, index) => 
         `<div class="prediction-item">
-            <strong>${index + 1}. ${pred.condition}</strong>: ${pred.percentage}%
+            <strong>${index + 1}. ${pred.condition}</strong>: ${pred.percentage.toFixed(1)}%
         </div>`
     ).join('');
 }
