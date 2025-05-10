@@ -46,29 +46,29 @@ function handleApiReady(event) {
 
 // Show an API error message to the user
 function showApiError(message = "We're experiencing technical difficulties connecting to our AI services. Please try again later.") {
-    let errorBanner = document.getElementById('api-error-banner');
-    
-    if (!errorBanner) {
-        errorBanner = document.createElement('div');
-        errorBanner.id = 'api-error-banner';
-        errorBanner.className = 'api-error-banner';
-        errorBanner.style.display = 'none'; // Initially hidden
-        document.body.appendChild(errorBanner);
+    const errorBanner = document.getElementById('api-error-banner');
+    const errorText = document.getElementById('api-error-text');
+    const retryButton = document.getElementById('retry-api-connection');
 
-        errorBanner.innerHTML = `
-            <div class="api-error-message">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p id="api-error-text"></p> 
-                <button class="retry-btn" id="retry-api-connection">Retry Connection</button>
-            </div>
-        `;
-        
-        // Add retry button functionality
-        document.getElementById('retry-api-connection').addEventListener('click', async function() {
+    if (!errorBanner || !errorText || !retryButton) {
+        console.error('API error banner elements not found in the DOM.');
+        return;
+    }
+
+    // Update message and show banner
+    errorText.textContent = message;
+    errorBanner.style.display = 'block';
+
+    // Ensure retry button listener is attached (or re-attach if necessary, though ideally once)
+    // To prevent multiple listeners, we can remove it first if it might be called multiple times
+    // For simplicity here, assuming it's set up once or the event listener handles duplicates gracefully.
+    // If this function can be called multiple times leading to multiple listeners on retryButton,
+    // consider adding a flag or removing the listener before adding it.
+    if (!retryButton.dataset.listenerAttached) {
+        retryButton.addEventListener('click', async function() {
             errorBanner.style.display = 'none'; // Hide banner while retrying
             console.log("Retrying API connection...");
             try {
-                // Ensure gradioApi is available before testing
                 if (!window.gradioApi) {
                     console.error("Cannot retry: gradioApi not found.");
                     showApiError("Initialization error. Please refresh.");
@@ -87,11 +87,8 @@ function showApiError(message = "We're experiencing technical difficulties conne
                 showApiError(); // Show error again
             }
         });
+        retryButton.dataset.listenerAttached = 'true';
     }
-    
-    // Update message and show banner
-    document.getElementById('api-error-text').textContent = message;
-    errorBanner.style.display = 'block';
 }
 
 // Hide the API error banner
@@ -121,17 +118,27 @@ function initNavigation() {
             pages.forEach(page => {
                 if (page.id === targetPage + '-page') {
                     page.classList.remove('hidden');
-                    
+                    // Show chat input only on chatbot page
+                    if (targetPage === 'chatbot') {
+                        document.querySelector('.chat-input-container').classList.remove('hidden');
+                    } else {
+                        document.querySelector('.chat-input-container').classList.add('hidden');
+                    }
                     // Load prediction history if history page is selected
                     if (targetPage === 'history') {
                         displayPredictionHistory();
                     }
-                    
                     // Display initial chat message if chat page is selected and messages are empty
                     if (targetPage === 'chatbot') {
                         const chatMessages = document.getElementById('chat-messages');
-                        if (chatMessages.children.length === 0 && chatHistory && chatHistory.length > 0) {
-                            addBotMessage(chatHistory[0][0]);
+                        // Initialize chat UI if it's empty and we have a chat.js initializeChatUI function
+                        if (chatMessages.children.length === 0) {
+                            if (typeof initializeChatUI === 'function') {
+                                initializeChatUI();
+                            } else if (typeof chatHistory !== 'undefined' && chatHistory && chatHistory.length > 0) {
+                                // Fallback to old method if initializeChatUI isn't available
+                                addBotMessage(chatHistory[0][0]);
+                            }
                         }
                     }
                 } else {

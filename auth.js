@@ -1,5 +1,16 @@
 // Auth related functionality
 
+// WARNING: Client-side password handling is insecure!
+// Passwords should ALWAYS be sent securely (HTTPS) to a server
+// and hashed server-side using a strong, salted algorithm (like bcrypt or Argon2).
+// Storing plain text or weakly hashed passwords in localStorage is a major security risk.
+// This function is removed as it provides a false sense of security.
+/*
+function hashPassword(password) { 
+    // ... insecure hashing logic removed ...
+}
+*/
+
 // Initialize authentication state
 function initAuth() {
     // Check if user is logged in
@@ -46,6 +57,12 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         return;
     }
     
+    // Password strength validation
+    if (password.length < 8) {
+        errorElement.textContent = 'Password must be at least 8 characters long';
+        return;
+    }
+    
     // Check if user already exists
     const users = JSON.parse(localStorage.getItem('users')) || [];
     if (users.some(user => user.email === email)) {
@@ -53,8 +70,9 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
         return;
     }
     
-    // Create new user
-    const newUser = { name, email, password };
+    // WARNING: Storing plain text password in localStorage is highly insecure!
+    // In a real application, send the password to the server for secure hashing and storage.
+    const newUser = { name, email, password: password }; // Storing plain text for demo - VERY INSECURE
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     
@@ -92,7 +110,9 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     
     // Check credentials
     const users = JSON.parse(localStorage.getItem('users')) || [];
-    const user = users.find(u => u.email === email && u.password === password);
+    // WARNING: Comparing plain text password from localStorage is highly insecure!
+    // In a real application, send the password to the server for secure comparison.
+    const user = users.find(u => u.email === email && u.password === password); // Comparing plain text for demo - VERY INSECURE
     
     if (user) {
         // Set current user and log in
@@ -113,6 +133,20 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 document.getElementById('logout-btn').addEventListener('click', function() {
     // Remove current user from storage
     localStorage.removeItem('currentUser');
+    
+    // Clear chat history from session storage
+    sessionStorage.removeItem('chatHistory');
+    
+    // If chat.js clearChatHistory function exists, call it to clear UI and server history
+    if (typeof clearChatHistory === 'function') {
+        clearChatHistory();
+    } else {
+        // Fallback: just clear the chat messages UI
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            chatMessages.innerHTML = '';
+        }
+    }
     
     // Show login page
     initAuth();

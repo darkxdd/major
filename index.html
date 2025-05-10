@@ -6,11 +6,35 @@
     <title>MediSense - AI-powered Health Assistant</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@latest/dist/purify.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/svg" href="favicon.svg">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
+    <!-- Bubbles Animation Background START -->
+    <div class="gradient-bg">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="goo">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+                    <feBlend in="SourceGraphic" in2="goo" />
+                </filter>
+            </defs>
+        </svg>
+        <div class="gradients-container">
+            <div class="g1"></div>
+            <div class="g2"></div>
+            <div class="g3"></div>
+            <div class="g4"></div>
+            <div class="g5"></div>
+            <div class="interactive"></div>
+        </div>
+    </div>
+    <!-- Bubbles Animation Background END -->
+
     <div id="auth-container">
         <div class="auth-card" id="login-card">
             <div class="logo-container">
@@ -105,7 +129,6 @@
             <div class="page" id="prediction-page">
                 <h2>Disease Prediction & Drug Recommendation</h2>
                 
-                <!-- Adding information about supported conditions -->
                 <div class="info-box" id="conditions-info-box">
                     <p>MediSense can predict various conditions but provides medication recommendations primarily for: 
                     <span class="condition-tag">Pain</span>
@@ -125,6 +148,31 @@
                 <div class="input-container">
                     <label for="symptoms-input">Describe your symptoms:</label>
                     <textarea id="symptoms-input" placeholder="Please describe your symptoms in detail. For example: I've been having a persistent cough for 3 days, with a mild fever and fatigue."></textarea>
+                    
+                    <div class="symptom-attributes">
+                        <div class="attribute-group">
+                            <label for="symptom-duration">Duration:</label>
+                            <select id="symptom-duration" class="symptom-dropdown">
+                                <option value="">Select duration</option>
+                                <option value="Less than a day">Less than a day</option>
+                                <option value="1-3 days">1-3 days</option>
+                                <option value="4-7 days">4-7 days</option>
+                                <option value="1-2 weeks">1-2 weeks</option>
+                                <option value="More than 2 weeks">More than 2 weeks</option>
+                            </select>
+                        </div>
+                        
+                        <div class="attribute-group">
+                            <label for="symptom-severity">Severity:</label>
+                            <select id="symptom-severity" class="symptom-dropdown">
+                                <option value="">Select severity</option>
+                                <option value="Mild">Mild</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Severe">Severe</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="button-group">
                         <button id="predict-btn" class="btn-primary">Submit</button>
                         <button id="clear-symptoms-btn" class="btn-secondary">Clear</button>
@@ -161,21 +209,22 @@
                 <h2>MediSense Chatbot</h2>
                 <div class="chat-container">
                     <div id="chat-messages" class="chat-messages"></div>
-                    <div class="chat-input-container">
-                        <input type="text" id="chat-input" placeholder="Type your message...">
-                        <button id="send-message-btn" class="btn-primary">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                        <button id="clear-chat-btn" class="btn-secondary">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
                 </div>
                 <div id="chat-loading" class="loading-container hidden">
                     <div class="loading-spinner"></div>
                     <p>MediSense is thinking...</p>
                 </div>
                 <div id="chat-error" class="error-message hidden"></div>
+            </div>
+
+            <div class="chat-input-container hidden">
+                <input type="text" id="chat-input" placeholder="Ask me about health conditions, symptoms, general medical advice...">
+                <button id="send-message-btn" class="btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <button id="clear-chat-btn" class="btn-secondary">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
 
             <div class="page hidden" id="history-page">
@@ -213,8 +262,41 @@
     <script type="module" src="gradio.js"></script>
     <script src="auth.js"></script>
     <script src="predict.js"></script>
-    <script src="chat.js"></script>
+    <script type="module" src="chat.js"></script>
     <script src="history.js"></script>
     <script src="main.js"></script>
+
+    <!-- Bubbles Animation JavaScript START -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const interBubble = document.querySelector('.interactive');
+
+            if (!interBubble) {
+                console.error("Element with class '.interactive' not found.");
+                return; // Exit if the element isn't found
+            }
+
+            let curX = 0;
+            let curY = 0;
+            let tgX = 0;
+            let tgY = 0;
+
+            function move() {
+                curX += (tgX - curX) / 20;
+                curY += (tgY - curY) / 20;
+                interBubble.style.transform = `translate(${Math.round(curX)}px, ${Math.round(curY)}px)`;
+                requestAnimationFrame(move);
+            }
+
+            window.addEventListener('mousemove', (event) => {
+                tgX = event.clientX;
+                tgY = event.clientY;
+            });
+
+            // Initial call to start the animation loop
+            move();
+        });
+    </script>
+    <!-- Bubbles Animation JavaScript END -->
 </body>
 </html>

@@ -7,31 +7,46 @@
     
     /* Light Mode Defaults */
     --text-color: #333;
-    --bg-color: #f8f9fa;
-    --card-bg: white;
-    --sidebar-bg: #f1f8ff;
-    --border-color: #ddd;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    --input-bg: white;
-    --secondary-btn-bg: #f1f3f4;
-    --secondary-btn-hover-bg: #e0e0e0;
-    --nav-item-hover-bg: rgba(26, 115, 232, 0.1);
-    --nav-item-active-bg: rgba(26, 115, 232, 0.2);
-    --table-header-bg: #f1f8ff;
-    --table-row-hover-bg: #f8f9fa;
-    --chat-bubble-user-bg: var(--primary-color);
+    --bg-color: #f8f9fa; /* This will be mostly covered by the bubble background */
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --sidebar-bg: rgba(241, 248, 255, 0.7);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    --input-bg: rgba(255, 255, 255, 0.8);
+    --secondary-btn-bg: rgba(241, 243, 244, 0.7);
+    --secondary-btn-hover-bg: rgba(224, 224, 224, 0.8);
+    --nav-item-hover-bg: rgba(26, 115, 232, 0.08);
+    --nav-item-active-bg: rgba(26, 115, 232, 0.15);
+    --table-header-bg: rgba(241, 248, 255, 0.7);
+    --table-row-hover-bg: rgba(248, 249, 250, 0.7);
+    --chat-bubble-user-bg: rgba(26, 115, 232, 0.85);
     --chat-bubble-user-text: white;
-    --chat-bubble-bot-bg: #e9e9eb;
+    --chat-bubble-bot-bg: rgba(233, 233, 235, 0.7);
     --chat-bubble-bot-text: var(--text-color);
-    --loading-spinner-border: rgba(26, 115, 232, 0.2);
-    --result-section-bg: #f8f9fa;
-    --disclaimer-bg: rgba(234, 67, 53, 0.1);
-    --disclaimer-border: rgba(234, 67, 53, 0.3);
+    --loading-spinner-border: rgba(26, 115, 232, 0.15);
+    --result-section-bg: rgba(248, 249, 250, 0.6);
+    --disclaimer-bg: rgba(234, 67, 53, 0.08);
+    --disclaimer-border: rgba(234, 67, 53, 0.2);
     --disclaimer-text: #555;
     --disclaimer-icon: var(--danger-color);
     --disclaimer-close: #555;
     --disclaimer-close-hover: var(--danger-color);
     --user-icon-color: #555;
+    --glass-blur: 12px;
+
+    /* Bubbles Animation CSS Variables START */
+    --color-bg1: rgb(108, 0, 162);
+    --color-bg2: rgb(0, 17, 82);
+    --color1: 18, 113, 255;
+    --color2: 221, 74, 255;
+    --color3: 100, 220, 255;
+    --color4: 200, 50, 50;
+    --color5: 180, 180, 50;
+    --color-interactive: 140, 100, 255;
+    --circle-size: 80%;
+    --blending: hard-light;
+    /* Bubbles Animation CSS Variables END */
 }
 
 /* Dark Mode Variables */
@@ -42,31 +57,34 @@ body.dark-mode {
     --danger-color: #f28b82; /* Lighter red */
 
     --text-color: #e8eaed; /* Light gray text */
-    --bg-color: #202124; /* Dark background */
-    --card-bg: #2d2e31; /* Slightly lighter card background */
-    --sidebar-bg: #282a2d; /* Dark sidebar */
-    --border-color: #5f6368; /* Gray border */
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.4); /* Darker shadow */
-    --input-bg: #3c4043;
-    --secondary-btn-bg: #3c4043;
-    --secondary-btn-hover-bg: #5f6368;
-    --nav-item-hover-bg: rgba(138, 180, 248, 0.1);
-    --nav-item-active-bg: rgba(138, 180, 248, 0.2);
-    --table-header-bg: #282a2d;
-    --table-row-hover-bg: #3c4043;
-    --chat-bubble-user-bg: var(--primary-color);
-    --chat-bubble-user-text: #202124; /* Dark text on light blue */
-    --chat-bubble-bot-bg: #3c4043;
+    --bg-color: #202124; /* This will be mostly covered by the bubble background */
+    --card-bg: rgba(45, 46, 49, 0.75); 
+    --sidebar-bg: rgba(40, 42, 45, 0.7); 
+    --border-color: rgba(255, 255, 255, 0.1); 
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.25); 
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --input-bg: rgba(60, 64, 67, 0.8);
+    --secondary-btn-bg: rgba(60, 64, 67, 0.7);
+    --secondary-btn-hover-bg: rgba(95, 99, 104, 0.8);
+    --nav-item-hover-bg: rgba(138, 180, 248, 0.08);
+    --nav-item-active-bg: rgba(138, 180, 248, 0.15);
+    --table-header-bg: rgba(40, 42, 45, 0.7);
+    --table-row-hover-bg: rgba(60, 64, 67, 0.7);
+    --chat-bubble-user-bg: rgba(138, 180, 248, 0.85);
+    --chat-bubble-user-text: #202124; 
+    --chat-bubble-bot-bg: rgba(60, 64, 67, 0.7);
     --chat-bubble-bot-text: var(--text-color);
-    --loading-spinner-border: rgba(138, 180, 248, 0.2);
-    --result-section-bg: #282a2d;
-    --disclaimer-bg: rgba(242, 139, 130, 0.1);
-    --disclaimer-border: rgba(242, 139, 130, 0.3);
+    --loading-spinner-border: rgba(138, 180, 248, 0.15);
+    --result-section-bg: rgba(40, 42, 45, 0.6);
+    --disclaimer-bg: rgba(242, 139, 130, 0.08);
+    --disclaimer-border: rgba(242, 139, 130, 0.2);
     --disclaimer-text: #e8eaed;
     --disclaimer-icon: var(--danger-color);
     --disclaimer-close: #e8eaed;
     --disclaimer-close-hover: var(--danger-color);
     --user-icon-color: #bdc1c6;
+
+    /* Bubbles Animation Dark Mode CSS Variables (if any specific changes needed, none provided so defaults apply) */
 }
 
 * {
@@ -76,17 +94,190 @@ body.dark-mode {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Styles from Bubbles Animation START */
+html, body {
+    /* font-family: 'Dongle', sans-serif; -- Removed, MediSense uses Segoe UI */
+    margin: 0; /* Kept */
+    padding: 0; /* Kept */
+    overflow: auto; /* Kept - To prevent scrollbars from the moving interactive element */
+}
+
+/* .text-container rule removed as the element is removed */
+
+@keyframes moveInCircle {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes moveVertical {
+    0% {
+        transform: translateY(-50%);
+    }
+    50% {
+        transform: translateY(50%);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+@keyframes moveHorizontal {
+    0% {
+        transform: translateX(-50%) translateY(-10%);
+    }
+    50% {
+        transform: translateX(50%) translateY(10%);
+    }
+    100% {
+        transform: translateX(-50%) translateY(-10%);
+    }
+}
+
+.gradient-bg {
+    width: 100vw;
+    height: 100vh;
+    position: fixed; /* Changed from relative for background behavior */
+    z-index: -1; /* To ensure it's behind other content */
+    overflow: hidden;
+    background: linear-gradient(40deg, var(--color-bg1), var(--color-bg2));
+    top: 0;
+    left: 0;
+}
+
+.gradient-bg svg { /* SVG for the goo filter, hidden */
+    position: fixed; /* Changed from absolute to fixed to align with .gradient-bg */
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+}
+
+.gradient-bg .gradients-container {
+    filter: url(#goo) blur(40px);
+    width: 100%;
+    height: 100%;
+}
+
+.gradient-bg .g1 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2);
+    left: calc(50% - var(--circle-size) / 2);
+    transform-origin: center center;
+    animation: moveVertical 30s ease infinite;
+    opacity: 1;
+}
+
+.gradient-bg .g2 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2);
+    left: calc(50% - var(--circle-size) / 2);
+    transform-origin: calc(50% - 400px);
+    animation: moveInCircle 20s reverse infinite;
+    opacity: 1;
+}
+
+.gradient-bg .g3 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2 + 200px);
+    left: calc(50% - var(--circle-size) / 2 - 500px);
+    transform-origin: calc(50% + 400px);
+    animation: moveInCircle 40s linear infinite;
+    opacity: 1;
+}
+
+.gradient-bg .g4 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2);
+    left: calc(50% - var(--circle-size) / 2);
+    transform-origin: calc(50% - 200px);
+    animation: moveHorizontal 40s ease infinite;
+    opacity: 0.7;
+}
+
+.gradient-bg .g5 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: calc(var(--circle-size) * 2);
+    height: calc(var(--circle-size) * 2);
+    top: calc(50% - var(--circle-size));
+    left: calc(50% - var(--circle-size));
+    transform-origin: calc(50% - 800px) calc(50% + 200px);
+    animation: moveInCircle 20s ease infinite;
+    opacity: 1;
+}
+
+.gradient-bg .interactive {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: 100%; /* This will be a large circle following the mouse */
+    height: 100%;
+    top: -50%; /* Centering the large circle, transform will move it */
+    left: -50%;
+    opacity: 0.7;
+    /* transform is set by JavaScript */
+}
+/* Styles from Bubbles Animation END */
+
+
+/* Animated Gradient Background -- REMOVED as Bubbles animation provides background
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+*/
+
 body {
-    background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
-    transition: background-color 0.3s, color 0.3s; /* Add transitions */
+    transition: color 0.3s;
+    /* background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); -- REMOVED */
+    /* background-size: 400% 400%; -- REMOVED */
+    /* animation: gradientAnimation 15s ease infinite; -- REMOVED */
+    /* background-attachment: fixed; -- REMOVED */
+    background-color: var(--bg-color); /* Fallback, mostly covered by .gradient-bg */
 }
 
 h1, h2, h3 {
     color: var(--primary-color);
     margin-bottom: 1rem;
     transition: color 0.3s;
+}
+
+.logo-container h1 {
+    margin-top: 12px;
+    margin-bottom: 0.5rem; 
 }
 
 /* Button Styles */
@@ -101,20 +292,34 @@ button {
 
 .btn-primary {
     background-color: var(--primary-color);
-    color: var(--chat-bubble-user-text); /* Use variable for potential dark mode text change */
+    color: var(--chat-bubble-user-text); /* Changed from white to use variable */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.1);
+    transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
     filter: brightness(90%);
+    box-shadow: 0 4px 12px rgba(31, 38, 135, 0.15);
+    transform: translateY(-2px);
 }
 
 .btn-secondary {
     background-color: var(--secondary-btn-bg);
     color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.05);
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
     background-color: var(--secondary-btn-hover-bg);
+    box-shadow: 0 4px 12px rgba(31, 38, 135, 0.1);
+    transform: translateY(-2px);
 }
 
 /* Form Styles */
@@ -128,15 +333,18 @@ label {
     font-weight: 500;
 }
 
-input, textarea {
+input, textarea, select.symptom-dropdown /* Added select here */ {
     width: 100%;
     padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
     font-size: 1rem;
-    background-color: var(--input-bg); /* Add background variable */
-    color: var(--text-color); /* Add text color */
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.05);
 }
 
 textarea {
@@ -144,10 +352,10 @@ textarea {
     resize: vertical;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select.symptom-dropdown:focus /* Added select here */ {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent); /* Updated shadow */
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
 .password-container {
@@ -160,11 +368,11 @@ input:focus, textarea:focus {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: #9aa0a6; /* Slightly lighter grey */
+    color: #9aa0a6; 
 }
 
 body.dark-mode .toggle-password {
-    color: #9aa0a6; /* Keep the same or adjust if needed */
+    color: #9aa0a6; 
 }
 
 .error-message {
@@ -181,17 +389,22 @@ body.dark-mode .toggle-password {
     align-items: center;
     min-height: 100vh;
     padding: 2rem;
+    position: relative; /* Ensures it's in the normal flow above z-index -1 background */
+    z-index: 1; /* Explicitly set above background */
 }
 
 .auth-card {
     background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
     padding: 2rem;
     width: 100%;
     max-width: 400px;
     text-align: center;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 #signup-card {
@@ -236,6 +449,8 @@ body.dark-mode .toggle-password {
 #app-container {
     display: flex;
     min-height: 100vh;
+    position: relative; /* Ensures it's in the normal flow above z-index -1 background */
+    z-index: 1; /* Explicitly set above background */
 }
 
 .sidebar {
@@ -247,7 +462,11 @@ body.dark-mode .toggle-password {
     flex-direction: column;
     position: fixed;
     height: 100vh;
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    box-shadow: var(--glass-shadow);
+    z-index: 10; /* Higher than app-container's base z-index */
 }
 
 .sidebar .logo-container {
@@ -268,7 +487,7 @@ body.dark-mode .toggle-password {
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s;
-    color: var(--text-color); /* Ensure nav item text color changes */
+    color: var(--text-color); 
 }
 
 .nav-item i {
@@ -302,7 +521,7 @@ body.dark-mode .toggle-password {
 .user-info i {
     font-size: 1.5rem;
     margin-right: 10px;
-    color: var(--user-icon-color); /* Use variable */
+    color: var(--user-icon-color); 
     transition: color 0.3s;
 }
 
@@ -311,19 +530,19 @@ body.dark-mode .toggle-password {
     align-items: center;
     width: 100%;
     justify-content: center;
-    margin-top: 0.5rem; /* Add some space above logout */
+    margin-top: 0.5rem; 
 }
 
 #logout-btn i {
     margin-right: 8px;
 }
 
-#dark-mode-toggle { /* Style toggle button */
+#dark-mode-toggle { 
     display: flex;
     align-items: center;
     width: 100%;
     justify-content: center;
-    margin-bottom: 0.5rem; /* Space between toggle and logout */
+    margin-bottom: 0.5rem; 
 }
 
 #dark-mode-toggle i {
@@ -334,17 +553,22 @@ body.dark-mode .toggle-password {
     flex-grow: 1;
     margin-left: 250px;
     padding: 2rem;
-    padding-bottom: 80px;
+    padding-bottom: 80px; /* Ensure space for disclaimer if it's at bottom of main-content */
+    position: relative; /* Added for stacking context if needed */
+    z-index: 5; /* Above app-container's base but below sidebar/modals */
 }
 
 /* Page Styles */
 .page {
     background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
     padding: 2rem;
     margin-bottom: 2rem;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 /* Prediction Page Styles */
@@ -370,12 +594,15 @@ body.dark-mode .toggle-password {
 }
 
 .result-section {
-    background-color: var(--result-section-bg); /* Use variable */
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    background-color: var(--result-section-bg);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
 }
 
 .result-section h3 {
@@ -386,21 +613,24 @@ body.dark-mode .toggle-password {
 
 /* Chatbot Page Styles */
 .chat-container {
-    background-color: var(--result-section-bg); /* Reuse variable */
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    background-color: var(--result-section-bg);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
     overflow: hidden;
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
     position: relative;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
     display: flex;
-    flex-direction: column;
+    flex-direction: column; 
 }
 
 .chat-messages {
     overflow-y: auto;
     padding: 1.5rem;
-    padding-bottom: 80px; /* Add padding to prevent messages from being hidden behind the input */
     flex-grow: 1;
+    /* max-height: 500px; -- Using fixed height on .chat-container instead */
 }
 
 .message {
@@ -422,37 +652,91 @@ body.dark-mode .toggle-password {
     background-color: var(--chat-bubble-user-bg);
     color: var(--chat-bubble-user-text);
     border-bottom-right-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.05);
 }
 
 .bot-message .message-content {
     background-color: var(--chat-bubble-bot-bg);
     color: var(--chat-bubble-bot-text);
     border-bottom-left-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.05);
+}
+
+/* Chatbot Message Specific Styles (copied from original, ensure they target correctly) */
+.bot-message-section h4 { /* Assuming this class is added inside .message-content for bot messages */
+    margin-top: 0.8em;
+    margin-bottom: 0.4em;
+    color: var(--primary-color); 
+}
+
+.condition-name-title { /* Assuming this class is added inside .message-content for bot messages */
+    font-size: 1.15em; 
+    font-weight: 600; 
+    color: var(--secondary-color); 
+    margin-top: 0.5em;
+    margin-bottom: 0.2em;
+}
+
+.condition-item p { /* Assuming this class is added inside .message-content for bot messages */
+    margin-left: 10px;
+    font-size: 0.95em;
+}
+
+.bot-message-list { /* Assuming this class is added inside .message-content for bot messages */
+    list-style-type: disc; 
+    padding-left: 20px; 
+    margin-top: 0.3em;
+    margin-bottom: 0.5em;
+}
+
+.bot-message-list-item { /* Assuming this class is added inside .message-content for bot messages */
+    margin-bottom: 0.3em;
+}
+
+.bot-message-sublist { /* Assuming this class is added inside .message-content for bot messages */
+    list-style-type: circle; 
+    padding-left: 20px; 
+    margin-top: 0.2em;
+    margin-bottom: 0.3em;
+}
+
+.bot-message-sublist-item { /* Assuming this class is added inside .message-content for bot messages */
+    margin-bottom: 0.2em;
 }
 
 .chat-input-container {
+    position: fixed;
+    left: 250px;
+    bottom: 0;
+    width: calc(100% - 250px);
+    z-index: 100; /* High z-index */
     display: flex;
     padding: 1rem;
-    border-top: 1px solid var(--border-color);
-    transition: border-color 0.3s;
-    background-color: var(--card-bg);
-    position: fixed;
-    bottom: 0;
-    left: 250px; /* Match sidebar width */
-    width: calc(100% - 250px); /* Adjust width to account for sidebar */
-    z-index: 1000;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    background-color: var(--card-bg); /* Use var(--card-bg) for consistency */
+    /* border-radius: 0px 0px 0 0; -- Removed, might not be needed with fixed position */
+    box-shadow: 0 -4px 16px rgba(31, 38, 135, 0.1);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    /* margin-top: 0; -- Not applicable for fixed */
 }
 
-/* Add responsive adjustment for mobile view */
 @media (max-width: 768px) {
     .chat-input-container {
         left: 0;
         width: 100%;
+        /* border-radius: 0 0 16px 16px; -- Consider if this fits the design */
     }
 }
+
 #chat-input {
     flex-grow: 1;
     margin-right: 10px;
@@ -473,12 +757,6 @@ body.dark-mode .toggle-password {
 #clear-chat-btn i {
     font-size: 1rem;
 }
-
-/* Remove the old clear-chat-btn styling that positioned it at the bottom */
-/* #clear-chat-btn {
-    margin: 1rem;
-    align-self: flex-end;
-} */
 
 /* History Page Styles */
 .history-container {
@@ -511,7 +789,7 @@ tr:hover {
 #no-history-message {
     padding: 2rem;
     text-align: center;
-    color: #777;
+    color: #777; /* Consider var(--text-color) with opacity */
 }
 
 /* Loading Styles */
@@ -526,7 +804,7 @@ tr:hover {
 .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid var(--loading-spinner-border); /* Use variable */
+    border: 4px solid var(--loading-spinner-border); 
     border-radius: 50%;
     border-top: 4px solid var(--primary-color);
     animation: spin 1s linear infinite;
@@ -543,16 +821,18 @@ tr:hover {
 .disclaimer-banner {
     position: fixed;
     bottom: 0;
-    left: 250px;
-    width: calc(100% - 250px);
-    background-color: var(--disclaimer-bg); /* Use variable */
-    border-top: 1px solid var(--disclaimer-border); /* Use variable */
+    left: 250px; /* Aligns with main content area */
+    width: calc(100% - 250px); /* Aligns with main content area */
+    background-color: var(--disclaimer-bg);
+    border-top: 1px solid var(--disclaimer-border);
     padding: 0.8rem 2rem;
-    display: none;  /* Hide by default */
+    display: none;  /* Hide by default, JS will show it */
     align-items: center;
-    z-index: 99;
+    z-index: 99; /* Below chat input, above most content */
     box-sizing: border-box; 
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
 }   
 
 /* Show disclaimer only when app container is visible */
@@ -561,7 +841,7 @@ tr:hover {
 }
 
 .disclaimer-banner i {
-    color: var(--disclaimer-icon); /* Use variable */
+    color: var(--disclaimer-icon); 
     font-size: 1.2rem;
     margin-right: 1rem;
     transition: color 0.3s;
@@ -569,7 +849,7 @@ tr:hover {
 
 .disclaimer-banner p {
     font-size: 0.9rem;
-    color: var(--disclaimer-text); /* Use variable */
+    color: var(--disclaimer-text); 
     flex-grow: 1;
     transition: color 0.3s;
 }
@@ -577,7 +857,7 @@ tr:hover {
 .disclaimer-banner .close-btn {
     background: none;
     border: none;
-    color: var(--disclaimer-close); /* Use variable */
+    color: var(--disclaimer-close); 
     padding: 0.5rem;
     cursor: pointer;
     font-size: 1.2rem;
@@ -586,16 +866,16 @@ tr:hover {
 }
 
 .disclaimer-banner .close-btn:hover {
-    color: var(--disclaimer-close-hover); /* Use variable */
+    color: var(--disclaimer-close-hover); 
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
     .sidebar {
-        position: fixed;
+        /* position: fixed; -- Already fixed */
         transform: translateX(-100%);
         transition: transform 0.3s ease;
-        z-index: 100;
+        z-index: 1000; /* Ensure sidebar is on top when active on mobile */
         width: 240px;
     }
     
@@ -605,21 +885,21 @@ tr:hover {
     
     .main-content {
         margin-left: 0;
-        padding-bottom: 90px;
+        padding-bottom: 120px; /* Increased to accommodate chat input and disclaimer */
     }
     
-    .menu-toggle {
+    .menu-toggle { /* Assuming .menu-toggle is added by JS for mobile */
         display: block;
         position: fixed;
         top: 1rem;
         left: 1rem;
-        z-index: 101;
+        z-index: 1001; /* Above active sidebar */
         background: var(--primary-color);
         color: white;
         border-radius: 50%;
         width: 40px;
         height: 40px;
-        display: flex;
+        /* display: flex; -- Handled by display: block */
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -645,7 +925,8 @@ tr:hover {
         flex-direction: column;
     }
     
-    #app-container:not(.hidden) ~ .disclaimer-banner {
+    #app-container:not(.hidden) ~ .disclaimer-banner,
+    .disclaimer-banner { /* Ensure disclaimer is full width on mobile */
         left: 0;
         width: 100%;
         padding: 0.8rem 1rem;
@@ -659,7 +940,7 @@ tr:hover {
 .prediction-item {
     margin-bottom: 0.8rem;
     padding: 0.5rem;
-    background-color: var(--result-section-bg); /* Use variable */
+    background-color: var(--result-section-bg); 
     border-radius: 4px;
     transition: background-color 0.3s;
 }
@@ -672,7 +953,7 @@ tr:hover {
 .drug-item {
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background-color: var(--result-section-bg); /* Use variable */
+    background-color: var(--result-section-bg); 
     border-radius: 4px;
     border-left: 4px solid var(--primary-color);
     transition: background-color 0.3s, border-left-color 0.3s;
@@ -692,16 +973,40 @@ tr:hover {
     margin: 0.3rem 0;
 }
 
-/* Add these styles to your existing CSS file */
-
 .info-box {
     background-color: var(--result-section-bg);
     border-left: 4px solid var(--primary-color);
     padding: 15px;
     margin-bottom: 20px;
-    border-radius: 4px;
+    border-radius: 12px;
     font-size: 0.95em;
-    transition: background-color 0.3s, border-left-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.symptom-attributes {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.attribute-group {
+    flex: 1;
+}
+
+.symptom-dropdown { /* Already covered by input, textarea, select rule. Keeping for specificity if needed */
+    /* Styles are now globally applied to select.symptom-dropdown */
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .symptom-attributes {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
 .condition-tag {
@@ -712,7 +1017,11 @@ tr:hover {
     margin: 2px;
     border-radius: 12px;
     font-size: 0.85em;
-    transition: background-color 0.3s, color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.3));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.3));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.05);
 }
 
 .small-note {
@@ -721,31 +1030,33 @@ tr:hover {
     opacity: 0.7;
     margin-top: 8px;
     font-style: italic;
-    transition: color 0.3s;}
+    transition: color 0.3s;
+}
 
-/* Drugs.com link styling in history table */
 .drugs-com-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #4a90e2;
+    color: var(--accent-color);
     text-decoration: none;
     padding: 5px 10px;
-    border-radius: 4px;
-    background-color: rgba(74, 144, 226, 0.1);
-    transition: all 0.2s ease;
+    border-radius: 8px;
+    background-color: color-mix(in srgb, var(--accent-color) 10%, transparent);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.3));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.3));
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .drugs-com-link:hover {
-    background-color: rgba(74, 144, 226, 0.2);
-    color: #2a70c2;
+    background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
+    color: color-mix(in srgb, var(--accent-color) 80%, var(--text-color)); 
 }
 
 .drugs-com-link i {
     font-size: 14px;
 }
 
-/* Make sure the history table has proper spacing */
 #history-table td {
     padding: 12px 15px;
     vertical-align: middle;
