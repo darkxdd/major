@@ -872,11 +872,17 @@ tr:hover {
 /* Responsive Styles */
 @media (max-width: 768px) {
     .sidebar {
-        /* position: fixed; -- Already fixed */
         transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        z-index: 1000; /* Ensure sidebar is on top when active on mobile */
-        width: 240px;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        width: 280px;
+        box-shadow: none;
+        background-color: var(--card-bg);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+        box-shadow: var(--glass-shadow);
     }
     
     .sidebar.active {
@@ -888,21 +894,38 @@ tr:hover {
         padding-bottom: 120px; /* Increased to accommodate chat input and disclaimer */
     }
     
-    .menu-toggle { /* Assuming .menu-toggle is added by JS for mobile */
-        display: block;
+    .menu-toggle {
+        display: flex;
         position: fixed;
         top: 1rem;
-        left: 1rem;
-        z-index: 1001; /* Above active sidebar */
-        background: var(--primary-color);
-        color: white;
-        border-radius: 50%;
+        right: 1rem; /* Changed from left to right */
+        z-index: 1001;
+        background: var(--card-bg);
+        color: var(--text-color);
+        border-radius: 8px;
         width: 40px;
         height: 40px;
-        /* display: flex; -- Handled by display: block */
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        box-shadow: var(--glass-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+        background: var(--secondary-btn-hover-bg);
+        transform: translateY(-2px);
+    }
+
+    .menu-toggle i {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.active + .menu-toggle i {
+        transform: rotate(90deg);
     }
     
     .results-row {
@@ -1006,6 +1029,37 @@ tr:hover {
     .symptom-attributes {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    /* Make symptom descriptions show ellipsis in mobile view */
+    .condition-tag {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* History table symptom descriptions */
+    #history-table td:nth-child(2) {
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Prediction results symptom descriptions */
+    .prediction-item {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Show only condition name and truncate the rest */
+    .prediction-item strong {
+        display: inline-block;
+        max-width: 70%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
