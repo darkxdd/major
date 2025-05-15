@@ -109,111 +109,232 @@ const MediSenseChat = (function() {
         
         messageDiv.appendChild(contentDiv);
         chatMessages.appendChild(messageDiv);
-        
-        // Auto scroll to bottom
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
+    // Configure marked options globally once
+    const MARKED_OPTIONS = {
+        breaks: true,
+        gfm: true,
+        headerIds: false,
+        mangle: false,
+        smartLists: true,
+        smartypants: true
+    };
+    
+    // Health-related keys configuration
+    const HEALTH_KEYS = [
+        "Potential Condition(s)",
+        "Symptoms",
+        "Recommendations",
+        "Follow-up Questions",
+        "Assessment",
+        "Possible Causes",
+        "Treatment Options",
+        "Risk Factors",
+        "Prevention",
+        "Diagnosis"
+    ];
+    
     // Add bot message to chat UI with improved markdown processing
     function addBotMessage(message) {
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message bot-message';
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-
+    
+        // Configure marked options once
+        marked.setOptions(MARKED_OPTIONS);
+    
+        // Handle potential JSON responses
+        let isFormattedJson = false;
         
         try {
+            // First, try to parse as JSON
             const parsedMessage = JSON.parse(message);
+            
             // Check if it's the specific JSON structure we want to format
-            if (parsedMessage && typeof parsedMessage === 'object' && parsedMessage["Potential Condition(s)"]) {
-                // Clear existing content in contentDiv if any (though it should be new)
-                contentDiv.innerHTML = ''; 
-
-                for (const key in parsedMessage) {
-                    if (parsedMessage.hasOwnProperty(key)) {
+            if (parsedMessage && typeof parsedMessage === 'object') {
+                // Check if the JSON has any of our health-related keys
+                const hasHealthData = HEALTH_KEYS.some(key => 
+                    parsedMessage.hasOwnProperty(key) || 
+                    parsedMessage.hasOwnProperty(key.replace(/\(\s*s\s*\)/gi, ''))
+                );
+                
+                if (hasHealthData) {
+                    contentDiv.innerHTML = ''; 
+                    isFormattedJson = true;
+    
+                    // Create a wrapper for better styling
+                    const jsonWrapper = document.createElement('div');
+                    jsonWrapper.className = 'json-formatted-content';
+    
+                    // Process each key in the parsed JSON
+                    Object.entries(parsedMessage).forEach(([key, value]) => {
                         const sectionDiv = document.createElement('div');
                         sectionDiv.className = 'bot-message-section';
-
+    
                         const title = document.createElement('h3');
-                        // Remove (s) and potential $1 issue, trim whitespace
-                        title.textContent = key.replace(/\(\s*s\s*\)/gi, '').trim(); 
+                        title.textContent = key.replace(/\(\s*s\s*\)/gi, '').trim();
+                        title.className = 'section-title';
                         sectionDiv.appendChild(title);
-
-                        const value = parsedMessage[key];
+    
+                        // Handle different value types
                         if (Array.isArray(value)) {
-                            if (key === "Potential Condition(s)") {
-                                value.forEach(condition => {
-                                    const conditionDiv = document.createElement('div');
-                                    conditionDiv.className = 'condition-item';
-                                    
-                                    const conditionTitle = document.createElement('h4'); // Changed from h5 to h4
-                                    conditionTitle.className = 'condition-name-title'; // Added class for styling
-                                    conditionTitle.textContent = condition.Condition;
-                                    conditionDiv.appendChild(conditionTitle);
-
-                                    const likelihood = document.createElement('p');
-                                    likelihood.innerHTML = `<strong>Likelihood:</strong> ${condition.Likelihood}`;
-                                    conditionDiv.appendChild(likelihood);
-
-                                    const reasoning = document.createElement('p');
-                                    reasoning.innerHTML = `<strong>Reasoning:</strong> ${condition.Reasoning}`;
-                                    conditionDiv.appendChild(reasoning);
-                                    
-                                    sectionDiv.appendChild(conditionDiv);
-                                });
-                            } else {
-                                const ul = document.createElement('ul');
-                                ul.className = 'bot-message-list'; // Added class for styling
-                                ul.style.listStylePosition = 'inside'; // Ensure bullets are inside
-                                value.forEach(item => {
-                                    const li = document.createElement('li');
-                                    li.className = 'bot-message-list-item'; // Added class for styling
-                                    // Basic handling for nested structures (can be expanded)
-                                    if (typeof item === 'object' && item !== null && item.hasOwnProperty('point')) {
-                                        li.textContent = item.point;
-                                        if (item.hasOwnProperty('subpoints') && Array.isArray(item.subpoints)) {
-                                            const subUl = document.createElement('ul');
-                                            subUl.className = 'bot-message-sublist';
-                                            item.subpoints.forEach(subItem => {
-                                                const subLi = document.createElement('li');
-                                                subLi.className = 'bot-message-sublist-item';
-                                                subLi.textContent = subItem;
-                                                subUl.appendChild(subLi);
-                                            });
-                                            li.appendChild(subUl);
-                                        }
-                                    } else {
-                                        li.textContent = item;
-                                    }
-                                    ul.appendChild(li);
-                                });
-                                sectionDiv.appendChild(ul);
-                            }
+                            sectionDiv.appendChild(
+                                key.includes("Condition") ? 
+                                createConditionsList(value) : 
+                                createFormattedList(value)
+                            );
                         } else if (typeof value === 'string') {
-                            const p = document.createElement('p');
-                            p.textContent = value;
-                            sectionDiv.appendChild(p);
+                            sectionDiv.appendChild(createFormattedParagraph(value));
+                        } else if (value && typeof value === 'object') {
+                            sectionDiv.appendChild(createNestedObject(value));
                         }
-                        contentDiv.appendChild(sectionDiv);
-                    }
+    
+                        jsonWrapper.appendChild(sectionDiv);
+                    });
+    
+                    contentDiv.appendChild(jsonWrapper);
                 }
-            } else {
-                // Not the specific JSON or not an object, display as plain text
-                contentDiv.textContent = message;
             }
         } catch (error) {
-            // Not JSON, display as plain text
-            contentDiv.textContent = message;
+            console.debug("Message is not valid JSON, will render as markdown:", error);
         }
-
+    
+        // If not JSON or no health data, render as markdown
+        if (!isFormattedJson) {
+            const sanitizedHtml = DOMPurify.sanitize(marked.parse(message));
+            // Add wrapper class for consistent styling
+            contentDiv.innerHTML = `<div class="markdown-content">${sanitizedHtml}</div>`;
+        }
+    
         messageDiv.appendChild(contentDiv);
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Handle sending a message with improved error handling and performance
+    // Helper function to create formatted condition list
+    function createConditionsList(conditions) {
+        const container = document.createElement('div');
+        container.className = 'conditions-container';
+    
+        conditions.forEach(condition => {
+            const conditionDiv = document.createElement('div');
+            conditionDiv.className = 'condition-item';
+    
+            if (condition && typeof condition === 'object') {
+                // Handle structured condition object
+                const fields = {
+                    'Condition': ['condition', 'Condition', 'name', 'Name'],
+                    'Likelihood': ['likelihood', 'Likelihood', 'probability', 'Probability'],
+                    'Reasoning': ['reasoning', 'Reasoning', 'explanation', 'Explanation']
+                };
+    
+                Object.entries(fields).forEach(([label, keys]) => {
+                    const value = keys.reduce((val, key) => val || condition[key], null);
+                    if (value) {
+                        const element = label === 'Condition' ? 
+                            createHeading(value, 4, 'condition-name-title') :
+                            createLabeledParagraph(label, value);
+                        conditionDiv.appendChild(element);
+                    }
+                });
+            } else if (typeof condition === 'string') {
+                conditionDiv.appendChild(createHeading(condition, 4, 'condition-name-title'));
+            }
+    
+            container.appendChild(conditionDiv);
+        });
+    
+        return container;
+    }
+
+    // Helper function to create formatted list
+    function createFormattedList(items) {
+        const ul = document.createElement('ul');
+        ul.className = 'bot-message-list';
+        
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'bot-message-list-item';
+    
+            if (item && typeof item === 'object') {
+                if (item.point || item.Point) {
+                    li.innerHTML = DOMPurify.sanitize(marked.parse(item.point || item.Point));
+                    
+                    const subpoints = item.subpoints || item.Subpoints;
+                    if (Array.isArray(subpoints)) {
+                        li.appendChild(createSubpointsList(subpoints));
+                    }
+                } else {
+                    li.textContent = JSON.stringify(item, null, 2);
+                }
+            } else {
+                li.innerHTML = DOMPurify.sanitize(marked.parse(String(item)));
+            }
+            
+            ul.appendChild(li);
+        });
+    
+        return ul;
+    }
+
+    // Helper function to create subpoints list
+    function createSubpointsList(subpoints) {
+        const subUl = document.createElement('ul');
+        subUl.className = 'bot-message-sublist';
+        
+        subpoints.forEach(subpoint => {
+            const subLi = document.createElement('li');
+            subLi.className = 'bot-message-sublist-item';
+            subLi.innerHTML = DOMPurify.sanitize(marked.parse(String(subpoint)));
+            subUl.appendChild(subLi);
+        });
+    
+        return subUl;
+    }
+
+    // Helper function to create formatted paragraph
+    function createFormattedParagraph(text) {
+        const p = document.createElement('p');
+        p.className = 'formatted-paragraph';
+        p.innerHTML = DOMPurify.sanitize(marked.parse(text));
+        return p;
+    }
+
+    // Helper function to create nested object
+    function createNestedObject(obj) {
+        const container = document.createElement('div');
+        container.className = 'nested-object';
+    
+        Object.entries(obj).forEach(([key, value]) => {
+            container.appendChild(createLabeledParagraph(key, value));
+        });
+    
+        return container;
+    }
+
+    // Helper function to create labeled paragraph
+    function createLabeledParagraph(label, value) {
+        const p = document.createElement('p');
+        p.className = 'labeled-content';
+        p.innerHTML = `<strong>${label}:</strong> ${DOMPurify.sanitize(marked.parse(String(value)))}`;
+        return p;
+    }
+
+    // Helper function to create heading
+    function createHeading(text, level, className) {
+        const heading = document.createElement(`h${level}`);
+        heading.className = className;
+        heading.textContent = text;
+        return heading;
+    }
+
+    // Handle sending a message with improved error handling
     async function sendMessage() {
         const chatInput = document.getElementById('chat-input');
         const errorElement = document.getElementById('chat-error');
