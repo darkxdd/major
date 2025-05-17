@@ -42,8 +42,17 @@ Example for insufficient symptoms: {"error": "INSUFFICIENT_SYMPTOMS"}`;
             if (fullUpdatedHistory.length > 0) {
                 const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
                 if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
+                    let responseText = latestTurn[1].trim();
+                    // Remove markdown code block markers if present
+                    if (responseText.startsWith("```json")) {
+                        responseText = responseText.substring(7);
+                    }
+                    if (responseText.endsWith("```")) {
+                        responseText = responseText.substring(0, responseText.length - 3);
+                    }
+                    responseText = responseText.trim(); // Trim again after potential modifications
                     try {
-                        const jsonResponse = JSON.parse(latestTurn[1].trim());
+                        const jsonResponse = JSON.parse(responseText);
                         if (jsonResponse.condition) {
                             let condition = jsonResponse.condition.trim();
                             condition = condition.split('\n')[0].split('.')[0].trim();
@@ -111,7 +120,15 @@ Do not deviate from this JSON format.`;
             if (fullUpdatedHistory.length > 0) {
                 const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
                 if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
-                    const responseText = latestTurn[1].trim();
+                    let responseText = latestTurn[1].trim();
+                    // Remove markdown code block markers if present
+                    if (responseText.startsWith("```json")) {
+                        responseText = responseText.substring(7);
+                    }
+                    if (responseText.endsWith("```")) {
+                        responseText = responseText.substring(0, responseText.length - 3);
+                    }
+                    responseText = responseText.trim(); // Trim again after potential modifications
                     try {
                         const jsonResponse = JSON.parse(responseText);
                         if (jsonResponse.predictions && Array.isArray(jsonResponse.predictions)) {
@@ -215,7 +232,15 @@ Do not deviate from this JSON format.`;
             if (fullUpdatedHistory.length > 0) {
                 const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
                 if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
-                    const responseText = latestTurn[1].trim();
+                    let responseText = latestTurn[1].trim();
+                    // Remove markdown code block markers if present
+                    if (responseText.startsWith("```json")) {
+                        responseText = responseText.substring(7);
+                    }
+                    if (responseText.endsWith("```")) {
+                        responseText = responseText.substring(0, responseText.length - 3);
+                    }
+                    responseText = responseText.trim(); // Trim again after potential modifications
                     try {
                         const jsonResponse = JSON.parse(responseText);
                         if (jsonResponse.drug_recommendations && Array.isArray(jsonResponse.drug_recommendations)) {

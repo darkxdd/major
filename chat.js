@@ -83,15 +83,11 @@ const MediSenseChat = (function() {
     
     const HEALTH_KEYS = [
         "Potential Condition(s)",
-        "Symptoms",
-        "Recommendations",
-        "Follow-up Questions",
-        "Assessment",
-        "Possible Causes",
-        "Treatment Options",
-        "Risk Factors",
-        "Prevention",
-        "Diagnosis"
+        "Recommended Actions",
+        "Suggested Over-the-Counter Relief",
+        "Lifestyle and Home Care Recommendations",
+        "Prevention Tips", 
+        "Warning Signs"
     ];
     
     function addBotMessage(message) {
@@ -106,48 +102,178 @@ const MediSenseChat = (function() {
         marked.setOptions(MARKED_OPTIONS);
     
         let isFormattedJson = false;
+        let processedMessage = message.trim();
+
+        // Remove markdown code block markers if present
+        if (processedMessage.startsWith("```json")) {
+            processedMessage = processedMessage.substring(7);
+        }
+        if (processedMessage.endsWith("```")) {
+            processedMessage = processedMessage.substring(0, processedMessage.length - 3);
+        }
+        processedMessage = processedMessage.trim(); // Trim again after potential modifications
         
         try {
-            const parsedMessage = JSON.parse(message);
+            const parsedMessage = JSON.parse(processedMessage);
             
-            if (parsedMessage && typeof parsedMessage === 'object') {
-                const hasHealthData = HEALTH_KEYS.some(key => 
-                    parsedMessage.hasOwnProperty(key) || 
-                    parsedMessage.hasOwnProperty(key.replace(/\(\s*s\s*\)/gi, ''))
-                );
-                
-                if (hasHealthData) {
-                    contentDiv.innerHTML = ''; 
+            if (parsedMessage && typeof parsedMessage === 'object' && !Array.isArray(parsedMessage)) {
+                // Check if it's the specific health report format
+                const knownKeys = ["PotentialConditions", "RecommendedActions", "SuggestedOTCRelief", "LifestyleAndHomeCare", "PreventionTips", "WarningSigns", "Disclaimer"];
+                const isHealthReport = knownKeys.some(k => parsedMessage.hasOwnProperty(k));
+
+                if (isHealthReport) {
                     isFormattedJson = true;
-    
-                    const jsonWrapper = document.createElement('div');
-                    jsonWrapper.className = 'json-formatted-content';
-    
-                    Object.entries(parsedMessage).forEach(([key, value]) => {
-                        const sectionDiv = document.createElement('div');
-                        sectionDiv.className = 'bot-message-section';
-    
-                        const title = document.createElement('h3');
-                        title.textContent = key.replace(/\(\s*s\s*\)/gi, '').trim();
-                        title.className = 'section-title';
-                        sectionDiv.appendChild(title);
-    
-                        if (Array.isArray(value)) {
-                            sectionDiv.appendChild(
-                                key.includes("Condition") ? 
-                                createConditionsList(value) : 
-                                createFormattedList(value)
-                            );
-                        } else if (typeof value === 'string') {
-                            sectionDiv.appendChild(createFormattedParagraph(value));
-                        } else if (value && typeof value === 'object') {
-                            sectionDiv.appendChild(createNestedObject(value));
+                    contentDiv.innerHTML = ''; // Clear existing content
+                    contentDiv.className = 'message-content'; // Ensure base class is set
+
+                    const sectionTitles = {
+                        PotentialConditions: "Potential Condition",
+                        RecommendedActions: "Recommended Actions",
+                        SuggestedOTCRelief: "Suggested Over-the-Counter Relief",
+                        LifestyleAndHomeCare: "Lifestyle and Home Care Recommendations",
+                        PreventionTips: "Prevention Tips",
+                        WarningSigns: "Warning Signs",
+                        Disclaimer: "Disclaimer"
+                    };
+
+                    const sectionOrder = [
+                        "PotentialConditions", "RecommendedActions", "SuggestedOTCRelief",
+                        "LifestyleAndHomeCare", "PreventionTips", "WarningSigns", "Disclaimer"
+                    ];
+
+                    const jsonFormattedContentDiv = document.createElement('div');
+                    jsonFormattedContentDiv.className = 'json-formatted-content';
+
+                    sectionOrder.forEach(key => {
+                        if (parsedMessage.hasOwnProperty(key)) {
+                            const value = parsedMessage[key];
+                            const sectionDiv = document.createElement('div');
+                            sectionDiv.className = 'bot-message-section';
+
+                            const titleH3 = document.createElement('h3');
+                            titleH3.className = 'section-title';
+                            titleH3.textContent = sectionTitles[key] || key;
+                            sectionDiv.appendChild(titleH3);
+
+                            switch (key) {
+                                case "PotentialConditions":
+                                    const conditionsContainer = document.createElement('div');
+                                    conditionsContainer.className = 'conditions-container';
+                                    if (Array.isArray(value)) {
+                                        value.forEach(condition => {
+                                            const itemDiv = document.createElement('div');
+                                            itemDiv.className = 'condition-item';
+                                            const nameH4 = document.createElement('h4');
+                                            nameH4.className = 'condition-name-title';
+                                            nameH4.textContent = condition.Name;
+                                            itemDiv.appendChild(nameH4);
+
+                                            const pLikeLabel = document.createElement('p');
+                                            pLikeLabel.className = 'labeled-content';
+                                            pLikeLabel.innerHTML = '<strong>Likelihood:</strong> ';
+                                            itemDiv.appendChild(pLikeLabel);
+                                            const pLikeValue = document.createElement('p');
+                                            pLikeValue.textContent = condition.Likelihood;
+                                            itemDiv.appendChild(pLikeValue);
+                                            itemDiv.appendChild(document.createElement('p')); // Empty p
+
+                                            const pReasLabel = document.createElement('p');
+                                            pReasLabel.className = 'labeled-content';
+                                            pReasLabel.innerHTML = '<strong>Reasoning:</strong> ';
+                                            itemDiv.appendChild(pReasLabel);
+                                            const pReasValue = document.createElement('p');
+                                            pReasValue.textContent = condition.Reasoning;
+                                            itemDiv.appendChild(pReasValue);
+                                            itemDiv.appendChild(document.createElement('p')); // Empty p
+                                            conditionsContainer.appendChild(itemDiv);
+                                        });
+                                    }
+                                    sectionDiv.appendChild(conditionsContainer);
+                                    break;
+
+                                case "RecommendedActions":
+                                case "LifestyleAndHomeCare":
+                                case "PreventionTips":
+                                    const ul = document.createElement('ul');
+                                    ul.className = 'bot-message-list';
+                                    if (Array.isArray(value)) {
+                                        value.forEach(itemStr => {
+                                            const li = document.createElement('li');
+                                            li.className = 'bot-message-list-item';
+                                            const p = document.createElement('p');
+                                            p.textContent = itemStr;
+                                            li.appendChild(p);
+                                            ul.appendChild(li);
+                                        });
+                                    }
+                                    sectionDiv.appendChild(ul);
+                                    break;
+
+                                case "WarningSigns":
+                                    const wsUl = document.createElement('ul');
+                                    wsUl.className = 'bot-message-list';
+                                    // Preamble based on theme.html
+                                    const preambleLi = document.createElement('li');
+                                    preambleLi.className = 'bot-message-list-item';
+                                    const preambleP = document.createElement('p');
+                                    preambleP.textContent = "Seek immediate emergency medical care if you experience any of the following:";
+                                    preambleLi.appendChild(preambleP);
+                                    wsUl.appendChild(preambleLi);
+
+                                    if (Array.isArray(value)) {
+                                        value.forEach(itemStr => {
+                                            const outerLi = document.createElement('li');
+                                            outerLi.className = 'bot-message-list-item';
+                                            const innerUl = document.createElement('ul');
+                                            const innerLi = document.createElement('li');
+                                            innerLi.textContent = itemStr;
+                                            innerUl.appendChild(innerLi);
+                                            outerLi.appendChild(innerUl);
+                                            wsUl.appendChild(outerLi);
+                                        });
+                                    }
+                                    sectionDiv.appendChild(wsUl);
+                                    break;
+
+                                case "SuggestedOTCRelief":
+                                    const otcUl = document.createElement('ul');
+                                    otcUl.className = 'bot-message-list';
+                                    Object.entries(value).forEach(([otcKey, otcValue]) => {
+                                        const li = document.createElement('li');
+                                        li.className = 'bot-message-list-item';
+                                        const p = document.createElement('p');
+                                        let textContent = '';
+                                        const formattedKey = otcKey.replace(/([A-Z])/g, ' $1').trim(); // e.g., PainRelievers -> Pain Relievers
+                                        if (otcKey === 'Note') {
+                                            textContent = `Note: ${otcValue}`;
+                                        } else {
+                                            textContent = `${formattedKey}: ${Array.isArray(otcValue) ? otcValue.join(', ') : otcValue}`;
+                                        }
+                                        p.textContent = textContent;
+                                        li.appendChild(p);
+                                        otcUl.appendChild(li);
+                                    });
+                                    sectionDiv.appendChild(otcUl);
+                                    break;
+
+                                case "Disclaimer":
+                                    const pEmptyFormatted = document.createElement('p');
+                                    pEmptyFormatted.className = 'formatted-paragraph';
+                                    sectionDiv.appendChild(pEmptyFormatted);
+                                    const pDisclaimer = document.createElement('p');
+                                    pDisclaimer.textContent = value;
+                                    sectionDiv.appendChild(pDisclaimer);
+                                    sectionDiv.appendChild(document.createElement('p')); // Empty p
+                                    break;
+                            }
+                            jsonFormattedContentDiv.appendChild(sectionDiv);
                         }
-    
-                        jsonWrapper.appendChild(sectionDiv);
                     });
-    
-                    contentDiv.appendChild(jsonWrapper);
+                    contentDiv.appendChild(jsonFormattedContentDiv);
+                } else {
+                    // It's an object, but not the specific health report, treat as generic JSON or fallback
+                    // For now, let it fall through to markdown rendering if not specifically handled.
+                    // console.log("Object message, but not recognized health report structure.");
                 }
             }
         } catch (error) {
@@ -156,6 +282,8 @@ const MediSenseChat = (function() {
     
         // If not JSON or no health data, render as markdown
         if (!isFormattedJson) {
+            // Use the original message for markdown rendering if JSON parsing failed
+            // or if it wasn't health data, to avoid showing a stripped version.
             const sanitizedHtml = DOMPurify.sanitize(marked.parse(message));
             // Add wrapper class for consistent styling
             contentDiv.innerHTML = `<div class="markdown-content">${sanitizedHtml}</div>`;
@@ -294,19 +422,19 @@ const MediSenseChat = (function() {
             return;
         }
         
-        const message = chatInput.value.trim();
+        const userMessage = chatInput.value.trim(); // Renamed for clarity
         
         // Clear previous errors
         errorElement.textContent = '';
         errorElement.classList.add('hidden');
         
         // Validate input
-        if (!message) {
+        if (!userMessage) {
             return;
         }
         
         // Add user message to UI
-        addUserMessage(message);
+        addUserMessage(userMessage);
         
         // Clear input
         chatInput.value = '';
@@ -320,6 +448,73 @@ const MediSenseChat = (function() {
                 throw new Error("Chat API is not available. Please refresh the page and try again.");
             }
             
+            // Construct the prompt for the AI model
+            const systemPrompt = `You are a helpful AI assistant. The user's query is: ${userMessage}
+When the user provides symptoms, your response MUST be a JSON object with the following structure:
+{
+  "PotentialConditions": [
+    {
+      "Name": "Sinusitis (Acute or Chronic)",
+      "Likelihood": "High",
+      "Reasoning": "Pain and pressure in the forehead, cheeks, and under the eyes are classic symptoms associated with inflammation or infection of the sinus cavities located in these areas."
+    },
+    {
+      "Name": "Tension Headache",
+      "Likelihood": "Moderate",
+      "Reasoning": "Tension headaches can cause pressure, often described as a band around the head or pressure in the forehead, though less commonly affects the cheeks and under the eyes specifically."
+    },
+    {
+      "Name": "Migraine",
+      "Likelihood": "Low",
+      "Reasoning": "While migraines can sometimes cause facial pain, the description of 'pressure' and the specific locations (under eyes, cheeks) are less typical than the throbbing, often unilateral pain associated with migraines."
+    },
+    {
+      "Name": "Dental Abscess or Infection",
+      "Likelihood": "Low",
+      "Reasoning": "Infections in the upper teeth can sometimes cause pain that radiates to the cheek or under the eye area, but the description of pressure across multiple areas (forehead, cheeks, under eyes) makes this less likely as the primary cause unless multiple teeth are involved."
+    }
+  ],
+  "RecommendedActions": [
+    "Consult a doctor: It is important to see a healthcare professional for an accurate diagnosis, especially if symptoms are severe, persistent (lasting more than a week to 10 days), worsening, or accompanied by fever.",
+    "Describe your symptoms clearly: Be prepared to tell your doctor about the location, nature, severity, duration, and any other associated symptoms.",
+    "Follow medical advice: Adhere strictly to any treatment plan prescribed by your doctor."
+  ],
+  "SuggestedOTCRelief": {
+    "PainRelievers": [
+      "Paracetamol (e.g., Crocin, Dolo)",
+      "Ibuprofen (e.g., Brufen, Combiflam)"
+    ],
+    "Decongestants": [
+      "Nasal sprays (e.g., Otrivin, Nasivion - use with caution and only for a few days to avoid rebound congestion)",
+      "Oral decongestants"
+    ],
+    "Note": "Always follow the dosage instructions on the packaging and consult a pharmacist or doctor, especially if you have other health conditions or are taking other medications. Availability and specific brand names may vary by location within India."
+  },
+  "LifestyleAndHomeCare": [
+    "Steam Inhalation: Inhaling steam from a bowl of hot water (with a towel over your head) or taking a hot shower can help open nasal passages and relieve pressure.",
+    "Warm Compresses: Applying a warm, moist cloth to your face (forehead, cheeks, around the eyes) several times a day can help ease pain.",
+    "Stay Hydrated: Drink plenty of fluids like water, juice, or clear broth. This helps thin mucus.",
+    "Rest: Get adequate rest to help your body recover."
+  ],
+  "PreventionTips": [
+    "Manage Allergies: If allergies contribute to sinus issues, work with a doctor to manage them effectively.",
+    "Avoid Irritants: Stay away from cigarette smoke, strong perfumes, and other airborne irritants.",
+    "Practice Good Hygiene: Wash hands frequently to prevent infections.",
+    "Use a Humidifier: Keeping the air moist, especially during dry seasons or in heated rooms, can help prevent sinus congestion."
+  ],
+  "WarningSigns": [
+    "Severe headache or facial pain that comes on suddenly or is unbearable.",
+    "High fever (above 102°F or 39°C).",
+    "Vision changes (e.g., double vision, decreased vision, swelling or redness around the eyes).",
+    "Swelling or redness around the eyes or cheeks that is rapidly worsening.",
+    "Stiff neck.",
+    "Confusion or difficulty staying awake."
+  ],
+  "Disclaimer": "This information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment."
+}
+
+If the user query does not involve symptoms, respond in Markdown format.`;
+
             // Format the history for the API call - create a copy to avoid direct mutation
             const formattedHistory = [...chatHistory];
             
@@ -330,7 +525,7 @@ const MediSenseChat = (function() {
             
             // Send message using the API wrapper with timeout
             const result = await Promise.race([
-                window.gradioApi.chat(message, formattedHistory),
+                window.gradioApi.chat(systemPrompt, formattedHistory), // Use systemPrompt here
                 timeoutPromise
             ]);
 
