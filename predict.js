@@ -1,16 +1,11 @@
-// Disease Prediction & Drug Recommendation functionality
-
-// Add event listener for symptoms input to hide/show info box
 document.addEventListener('DOMContentLoaded', function() {
     const symptomsInput = document.getElementById('symptoms-input');
     const infoBox = document.getElementById('conditions-info-box');
     
-    // Initial check in case there's already text in the field
     if (symptomsInput.value.trim() !== '') {
         infoBox.style.display = 'none';
     }
     
-    // Add input event listener to check for text changes
     symptomsInput.addEventListener('input', function() {
         if (this.value.trim() !== '') {
             infoBox.style.display = 'none';
@@ -20,10 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to get verified condition from chat model
 async function getVerifiedCondition(symptoms) {
     try {
-        // Create a prompt that asks for just the condition name
         const prompt = `You are a medical diagnostic assistant responding to a user query about symptoms. Your response MUST be a JSON object. 
 
 INSTRUCTIONS:
@@ -36,20 +29,16 @@ INSTRUCTIONS:
 
 Example for sufficient symptoms: {"condition": "Common Cold"}
 Example for insufficient symptoms: {"error": "INSUFFICIENT_SYMPTOMS"}`;        
-        // Create a temporary chat history for this verification
         const tempHistory = [];
         
-        // Send the verification request to the chat model
         const result = await window.gradioApi.chat(prompt, tempHistory);
         
-        // Extract the condition from the response
         if (result && result.data && Array.isArray(result.data) && 
             result.data.length > 0 && Array.isArray(result.data[0]) && 
             result.data[0].length > 0) {
             
             const fullUpdatedHistory = result.data[0];
             
-            // Get the latest bot response
             if (fullUpdatedHistory.length > 0) {
                 const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
                 if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
@@ -57,37 +46,28 @@ Example for insufficient symptoms: {"error": "INSUFFICIENT_SYMPTOMS"}`;
                         const jsonResponse = JSON.parse(latestTurn[1].trim());
                         if (jsonResponse.condition) {
                             let condition = jsonResponse.condition.trim();
-                            // Remove any extra text, keeping only the first line or sentence
                             condition = condition.split('\n')[0].split('.')[0].trim();
-                            console.log("Verified condition from chat model (JSON):", condition);
                             return condition;
                         } else if (jsonResponse.error && jsonResponse.error === "INSUFFICIENT_SYMPTOMS") {
-                            console.log("Verified condition from chat model (JSON): INSUFFICIENT_SYMPTOMS");
-                            return "INSUFFICIENT_SYMPTOMS"; // Or handle as appropriate
+                            return "INSUFFICIENT_SYMPTOMS"; 
                         }
                     } catch (e) {
-                        console.error("Error parsing JSON response from chat model for condition:", e, latestTurn[1]);
-                        // Fallback to old string parsing if JSON parsing fails, though ideally the bot always returns JSON
                         let condition = latestTurn[1].trim();
                         condition = condition.split('\n')[0].split('.')[0].trim();
-                        console.log("Verified condition from chat model (fallback string parsing):", condition);
                         return condition; 
                     }
                 }
             }
         }
         
-        return null; // Return null if verification failed
+        return null; 
     } catch (error) {
-        console.error("Verification error:", error);
-        return null; // Return null if verification failed
+        return null; 
     }
 }
 
-// New function to get verified condition predictions with percentages
 async function getVerifiedConditionPredictions(symptoms) {
     try {
-        // Create a prompt that asks for top conditions with percentages in JSON format
         const prompt = `You are a medical diagnostic assistant. Based on these symptoms: "${symptoms}", identify the 10 most likely medical conditions with their probability percentages. Your response MUST be a JSON object. 
 
 Requirements for the JSON object:
@@ -118,20 +98,16 @@ Format your response exactly like this example:
 
 Do not deviate from this JSON format.`;
         
-        // Create a temporary chat history for this verification
         const tempHistory = [];
         
-        // Send the verification request to the chat model
         const result = await window.gradioApi.chat(prompt, tempHistory);
         
-        // Extract the conditions with percentages from the response
         if (result && result.data && Array.isArray(result.data) && 
             result.data.length > 0 && Array.isArray(result.data[0]) && 
             result.data[0].length > 0) {
             
             const fullUpdatedHistory = result.data[0];
             
-            // Get the latest bot response
             if (fullUpdatedHistory.length > 0) {
                 const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
                 if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
@@ -142,31 +118,24 @@ Do not deviate from this JSON format.`;
                             const predictions = jsonResponse.predictions;
                             let totalPercentage = 0;
 
-                            // Validate predictions
                             if (predictions.length !== 10) {
-                                console.warn(`[getVerifiedConditionPredictions] Expected 10 predictions, but found ${predictions.length}. Response:`, jsonResponse);
                             }
 
                             predictions.forEach(p => {
                                 if (typeof p.condition === 'string' && typeof p.percentage === 'number') {
                                     totalPercentage += p.percentage;
                                 } else {
-                                    console.warn('[getVerifiedConditionPredictions] Invalid prediction item format:', p);
                                 }
                             });
 
-                            if (Math.abs(totalPercentage - 100) > 1) { // Allow for small floating point inaccuracies
-                                console.warn(`[getVerifiedConditionPredictions] Percentages sum to ${totalPercentage.toFixed(2)}%, not 100%. Predictions:`, predictions);
+                            if (Math.abs(totalPercentage - 100) > 1) { 
                             }
                             
-                            console.log("Verified condition predictions from chat model (JSON):", predictions);
+                            
                             return predictions.length > 0 ? predictions : null;
                         } else {
-                            console.warn("[getVerifiedConditionPredictions] JSON response does not contain 'predictions' array or is not an array.", jsonResponse);
                         }
                     } catch (e) {
-                        console.error("Error parsing JSON response from chat model for predictions:", e, responseText);
-                        // Fallback to old string parsing if JSON parsing fails
                         const lines = responseText.split('\n');
                         const predictions = [];
                         let totalPercentage = 0;
@@ -181,11 +150,9 @@ Do not deviate from this JSON format.`;
                                 });
                                 totalPercentage += parseFloat(match[2]);
                             } else {
-                                console.warn(`[getVerifiedConditionPredictions] (Fallback) Line did not match expected format: "${trimmedLine}"`);
                             }
                         }
                         if (predictions.length > 0) {
-                             console.log("Verified condition predictions from chat model (fallback string parsing):", predictions);
                              return predictions;
                         }
                     }
@@ -193,10 +160,100 @@ Do not deviate from this JSON format.`;
             }
         }
         
-        return null; // Return null if verification failed
+        return null; 
     } catch (error) {
-        console.error("Condition predictions verification error:", error);
-        return null; // Return null if verification failed
+        return null; 
+    }
+}
+
+async function getVerifiedDrugs(condition) {
+    try {
+        const prompt = `You are a medical information assistant. For the medical condition "${condition}", provide a list of commonly recommended drugs which is rated high to low ranking use that to sort the drugs. Your response MUST be a JSON object.
+
+Requirements for the JSON object:
+1. The JSON object should have a single key "drug_recommendations".
+2. The value of "drug_recommendations" should be an array of drug objects. Aim for 3-5 relevant drugs.
+3. Each drug object in the array must have the following keys:
+    - "drug_name" (string): The name of the drug.
+    - "rating" (string): A string representing the drug's rating and number of reviews, formatted as "[NUMERIC_RATING] ([NUMBER_OF_REVIEWS] reviews)". Example: "4.5 (120 reviews)".
+    - "useful_votes" (string): A string representing the number of useful votes. Example: "300".
+    - "side_effects" (string): A comma-separated string listing common side effects. Example: "Nausea, Dizziness, Headache".
+    - "notes" (string): Brief additional notes about the drug, its usage, or important considerations. Example: "Take with food to minimize stomach upset. Not recommended for pregnant women."
+4. Only include relevant and commonly recognized drugs for the specified condition.
+5. Do not include any explanations, warnings, or disclaimers in the JSON values, other than what is specified for the "notes" field.
+
+Format your response exactly like this example:
+{
+  "drug_recommendations": [
+    {
+      "drug_name": "Amoxicillin",
+      "rating": "4.7 (953 reviews)",
+      "useful_votes": "529",
+      "side_effects": "Diarrhea, Nausea, Rash",
+      "notes": "Commonly prescribed antibiotic. Complete the full course as directed by your doctor."
+    },
+    {
+      "drug_name": "Ibuprofen",
+      "rating": "4.5 (541 reviews)",
+      "useful_votes": "414",
+      "side_effects": "Stomach pain, Heartburn, Nausea",
+      "notes": "NSAID for pain and inflammation. Do not exceed recommended dosage."
+    }
+  ]
+}
+
+Do not deviate from this JSON format.`;
+
+        const tempHistory = [];
+        const result = await window.gradioApi.chat(prompt, tempHistory);
+
+        if (result && result.data && Array.isArray(result.data) &&
+            result.data.length > 0 && Array.isArray(result.data[0]) &&
+            result.data[0].length > 0) {
+
+            const fullUpdatedHistory = result.data[0];
+            if (fullUpdatedHistory.length > 0) {
+                const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
+                if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
+                    const responseText = latestTurn[1].trim();
+                    try {
+                        const jsonResponse = JSON.parse(responseText);
+                        if (jsonResponse.drug_recommendations && Array.isArray(jsonResponse.drug_recommendations)) {
+                            return jsonResponse.drug_recommendations.map(drug => {
+                                let ratingValue = null;
+                                let reviewsCount = null;
+                                const ratingMatch = drug.rating ? String(drug.rating).match(/(\d+(?:\.\d+)?)\s*\((\d+)\s*reviews\)/) : null;
+                                if (ratingMatch) {
+                                    ratingValue = parseFloat(ratingMatch[1]);
+                                    reviewsCount = parseInt(ratingMatch[2]);
+                                }
+                                
+                                let usefulVotesValue = null;
+                                if (drug.useful_votes) {
+                                    usefulVotesValue = parseInt(String(drug.useful_votes).replace(/,/g, ''));
+                                }
+
+                                return {
+                                    drug: drug.drug_name,
+                                    rating: ratingValue,
+                                    reviews: reviewsCount,
+                                    usefulVotes: usefulVotesValue,
+                                    sideEffects: drug.side_effects,
+                                    notes: drug.notes
+                                };
+                            }).filter(d => d.drug); // Ensure drug name is present
+                        }
+                    } catch (e) {
+                        console.error("Error parsing JSON for drug recommendations:", e, responseText);
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error("Error in getVerifiedDrugs:", error);
+        return null;
     }
 }
 
@@ -240,8 +297,8 @@ document.getElementById('predict-btn').addEventListener('click', async function(
         // Extract and format the data from result.data
         const modelConditionPredictions = extractConditionPredictions(result.data[0]);
         const predictedCondition = extractPredictedCondition(result.data[1]);
-        const recommendedDrugs = extractRecommendedDrugs(result.data[2]);
-        
+        // const recommendedDrugs = extractRecommendedDrugs(result.data[2]); // Line removed as we use getVerifiedDrugs
+
         // Get verification from chat model for primary condition
         const verifiedCondition = await getVerifiedCondition(symptomsInput);
         
@@ -251,25 +308,61 @@ document.getElementById('predict-btn').addEventListener('click', async function(
         // Use verified predictions if available, otherwise use model predictions
         const conditionPredictions = verifiedConditionPredictions || modelConditionPredictions;
         
+        // Determine the condition to use for display, drugs, and history
+        let displayCondition;
+        let actualConditionForDisplayAndDrugs = null;
+
+        if (verifiedCondition === "INSUFFICIENT_SYMPTOMS") {
+            displayCondition = "Insufficient symptoms for a reliable assessment.";
+            actualConditionForDisplayAndDrugs = null; // No specific condition for drugs/history
+        } else if (verifiedCondition) {
+            displayCondition = verifiedCondition;
+            actualConditionForDisplayAndDrugs = verifiedCondition;
+        } else if (predictedCondition) {
+            displayCondition = predictedCondition;
+            actualConditionForDisplayAndDrugs = predictedCondition;
+        } else {
+            displayCondition = "Condition could not be determined.";
+            actualConditionForDisplayAndDrugs = null;
+        }
+        
         // Display results
         document.getElementById('condition-predictions').innerHTML = formatConditionPredictions(conditionPredictions);
-        const condition = verifiedCondition || predictedCondition;
-        document.getElementById('primary-condition').textContent = condition;
+        document.getElementById('primary-condition').textContent = displayCondition;
+        
+        // Get verified drugs for the determined condition
+        let finalDrugRecommendations = [];
+        if (actualConditionForDisplayAndDrugs) { // Only fetch if we have a specific condition
+            const verifiedDrugs = await getVerifiedDrugs(actualConditionForDisplayAndDrugs);
+            finalDrugRecommendations = verifiedDrugs || []; // Use verified drugs or empty array if null
+        } else {
+            // If no actual condition, we might still want to clear or hide old drug recommendations
+            // For now, finalDrugRecommendations remains empty, leading to "No drug recommendations" message by formatRecommendedDrugs
+        }
         
         // Update drugs.com link
         const drugsComLink = document.getElementById('drugs-com-link');
-        // Remove previous event listeners to avoid stacking
-        const newDrugsComLink = drugsComLink.cloneNode(true);
+        const newDrugsComLink = drugsComLink.cloneNode(true); // Clone to remove old listeners
         drugsComLink.parentNode.replaceChild(newDrugsComLink, drugsComLink);
-        newDrugsComLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.open(`https://www.drugs.com/search.php?searchterm=${encodeURIComponent(condition)}`, '_blank');
-        });
+
+        if (actualConditionForDisplayAndDrugs) {
+            newDrugsComLink.style.display = ''; // Make it visible
+            newDrugsComLink.href = `https://www.drugs.com/search.php?searchterm=${encodeURIComponent(actualConditionForDisplayAndDrugs)}`;
+            newDrugsComLink.target = '_blank';
+            // Re-attach event listener if it was doing more than just opening a link, or if preferred for consistency
+            newDrugsComLink.addEventListener('click', function(e) {
+                 e.preventDefault(); 
+                 window.open(this.href, '_blank');
+            });
+        } else {
+            newDrugsComLink.style.display = 'none'; // Hide if no condition
+            newDrugsComLink.href = '#'; // Reset href
+        }
         
-        document.getElementById('drug-recommendations').innerHTML = formatRecommendedDrugs(recommendedDrugs);
+        document.getElementById('drug-recommendations').innerHTML = formatRecommendedDrugs(finalDrugRecommendations);
         
         // Store prediction in history
-        savePrediction(symptomsInput, condition);
+        savePrediction(symptomsInput, displayCondition); // Save the displayed condition
         
         // Show results
         resultsElement.classList.remove('hidden');
@@ -281,6 +374,15 @@ document.getElementById('predict-btn').addEventListener('click', async function(
     } finally {
         // Hide loading spinner
         loadingElement.classList.add('hidden');
+        // Clear the server-side chat context that might have been set by prediction calls
+        if (window.gradioApi && typeof window.gradioApi.clearChat === 'function') {
+            try {
+                await window.gradioApi.clearChat();
+                
+            } catch (clearError) {
+                
+            }
+        }
     }
 });
 
@@ -382,14 +484,29 @@ function formatConditionPredictions(predictions) {
 }
 
 function formatRecommendedDrugs(drugs) {
-    return drugs.map(drug => 
-        `<div class="drug-item">
-            <strong>${drug.drug}</strong><br>
-            Rating: ${drug.rating} (${drug.reviews} reviews)<br>
-            Useful Votes: ${drug.usefulVotes}<br>
-            Side Effects: ${drug.sideEffects}
-        </div>`
-    ).join('');
+    if (!drugs || drugs.length === 0) {
+        return '<p>No drug recommendations available for this condition at this time.</p>';
+    }
+    return drugs.map(drug => {
+        let ratingDisplay = "N/A";
+        if (drug.rating !== null && typeof drug.rating !== 'undefined' && drug.reviews !== null && typeof drug.reviews !== 'undefined') {
+            ratingDisplay = `${Number(drug.rating).toFixed(1)} (${drug.reviews} reviews)`;
+        } else if (drug.rating !== null && typeof drug.rating !== 'undefined') {
+             ratingDisplay = `${Number(drug.rating).toFixed(1)}`;
+        }
+
+        const usefulVotesDisplay = (drug.usefulVotes !== null && typeof drug.usefulVotes !== 'undefined') ? drug.usefulVotes : "N/A";
+        const sideEffectsDisplay = drug.sideEffects || "N/A";
+        const notesDisplay = drug.notes ? `<br>Notes: ${drug.notes}` : "";
+
+        return `<div class="drug-item">
+            <strong>${drug.drug || "Unknown Drug"}</strong><br>
+            Rating: ${ratingDisplay}<br>
+            Useful Votes: ${usefulVotesDisplay}<br>
+            Side Effects: ${sideEffectsDisplay}
+            ${notesDisplay}
+        </div>`;
+    }).join('');
 }
 
 // Clear symptoms input

@@ -1,101 +1,61 @@
-// MediSense Chatbot functionality
-
-// Initialize chat state
-// Use sessionStorage instead of a variable to persist only during the current session
 const DEFAULT_GREETING = "Hello! I'm MediSense, your AI health assistant. How can I help you today?";
 
-// Create a module-level IIFE to encapsulate variables and prevent global scope pollution
 const MediSenseChat = (function() {
-    // Initialize chat history with proper error handling
     let chatHistory;
     try {
         const savedHistory = sessionStorage.getItem('chatHistory');
         chatHistory = savedHistory ? JSON.parse(savedHistory) : [[DEFAULT_GREETING, ""]];
         
-        // Validate the structure of the loaded chat history
         if (!Array.isArray(chatHistory) || chatHistory.length === 0) {
-            // Reset to default if structure is invalid
             chatHistory = [[DEFAULT_GREETING, ""]];
         }
     } catch (error) {
-        console.error("Error loading chat history from session storage:", error);
         chatHistory = [[DEFAULT_GREETING, ""]];
     }
 
-    // Save chat history to session storage with error handling
     function saveChatHistory() {
         try {
             sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
         } catch (error) {
-            console.error("Error saving chat history to session storage:", error);
         }
     }
 
-    // Add initial bot message to UI if API was available on load
-    // This relies on the initial test in gradio.js
     function initializeChatUI() {
-        // Get chat container element once
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) {
-            console.error("Chat messages container not found");
             return;
         }
         
-        // Clear existing messages first - use safer method
-        while (chatMessages.firstChild) {
-            chatMessages.removeChild(chatMessages.firstChild);
-        }
-        
-        // If we have chat history from session storage, display all messages
-        if (chatHistory.length > 0) {
-            // Special case for the initial bot greeting message
-            if (chatHistory[0]?.[0]?.includes("MediSense")) {
-                // This is the initial bot greeting, display as bot message
-                addBotMessage(chatHistory[0][0]);
-                
-                // Start from index 1 to skip the initial greeting when processing the rest
-                for (let i = 1; i < chatHistory.length; i++) {
-                    const [userMsg, botMsg] = chatHistory[i];
-                    // If user message exists
-                    if (userMsg?.trim()) {
-                        addUserMessage(userMsg);
-                    }
-                    // If bot message exists
-                    if (botMsg?.trim()) {
-                        addBotMessage(botMsg);
-                    }
-                }
-            } else {
-                // Regular processing for non-initial messages
-                chatHistory.forEach(([userMsg, botMsg]) => {
-                    // If user message exists
-                    if (userMsg?.trim()) {
-                        addUserMessage(userMsg);
-                    }
-                    // If bot message exists
-                    if (botMsg?.trim()) {
-                        addBotMessage(botMsg);
-                    }
-                });
-            }
-        } else {
-            // Just add the initial bot message
+        while (chatMessages.firstChild) chatMessages.removeChild(chatMessages.firstChild);
+
+        const isEffectivelyEmpty = chatHistory.length === 1 && chatHistory[0][0] === "" && chatHistory[0][1] === "";
+        const startsWithCorrectGreeting = chatHistory.length > 0 && chatHistory[0][0] === DEFAULT_GREETING;
+
+        if (isEffectivelyEmpty) {
             addBotMessage(DEFAULT_GREETING);
+        } else if (!startsWithCorrectGreeting) {
+            addBotMessage(DEFAULT_GREETING);
+            chatHistory.forEach(([userMsg, botMsg]) => {
+                if (userMsg?.trim()) addUserMessage(userMsg);
+                if (botMsg?.trim()) addBotMessage(botMsg);
+            });
+        } else { // startsWithCorrectGreeting is true
+            addBotMessage(chatHistory[0][0]);
+            for (let i = 1; i < chatHistory.length; i++) {
+                const [userMsg, botMsg] = chatHistory[i];
+                if (userMsg?.trim()) addUserMessage(userMsg);
+                if (botMsg?.trim()) addBotMessage(botMsg);
+            }
         }
     }
 
-    // Initialize the chat UI when the page loads
     function init() {
-        // Always initialize the chat UI with the default message
         initializeChatUI();
         
-        // Still log a warning if the API isn't available
         if (!window.gradioApi?.getApiStatus()?.working) {
-            console.warn("Chat API not immediately available. Using default message only.");
         }
     }
 
-    // Add user message to chat UI
     function addUserMessage(message) {
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
@@ -105,14 +65,13 @@ const MediSenseChat = (function() {
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.textContent = message; // No need to sanitize user messages as we use textContent
+        contentDiv.textContent = message; 
         
         messageDiv.appendChild(contentDiv);
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Configure marked options globally once
     const MARKED_OPTIONS = {
         breaks: true,
         gfm: true,
@@ -122,7 +81,6 @@ const MediSenseChat = (function() {
         smartypants: true
     };
     
-    // Health-related keys configuration
     const HEALTH_KEYS = [
         "Potential Condition(s)",
         "Symptoms",
@@ -136,7 +94,6 @@ const MediSenseChat = (function() {
         "Diagnosis"
     ];
     
-    // Add bot message to chat UI with improved markdown processing
     function addBotMessage(message) {
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
@@ -146,19 +103,14 @@ const MediSenseChat = (function() {
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
     
-        // Configure marked options once
         marked.setOptions(MARKED_OPTIONS);
     
-        // Handle potential JSON responses
         let isFormattedJson = false;
         
         try {
-            // First, try to parse as JSON
             const parsedMessage = JSON.parse(message);
             
-            // Check if it's the specific JSON structure we want to format
             if (parsedMessage && typeof parsedMessage === 'object') {
-                // Check if the JSON has any of our health-related keys
                 const hasHealthData = HEALTH_KEYS.some(key => 
                     parsedMessage.hasOwnProperty(key) || 
                     parsedMessage.hasOwnProperty(key.replace(/\(\s*s\s*\)/gi, ''))
@@ -168,11 +120,9 @@ const MediSenseChat = (function() {
                     contentDiv.innerHTML = ''; 
                     isFormattedJson = true;
     
-                    // Create a wrapper for better styling
                     const jsonWrapper = document.createElement('div');
                     jsonWrapper.className = 'json-formatted-content';
     
-                    // Process each key in the parsed JSON
                     Object.entries(parsedMessage).forEach(([key, value]) => {
                         const sectionDiv = document.createElement('div');
                         sectionDiv.className = 'bot-message-section';
@@ -182,7 +132,6 @@ const MediSenseChat = (function() {
                         title.className = 'section-title';
                         sectionDiv.appendChild(title);
     
-                        // Handle different value types
                         if (Array.isArray(value)) {
                             sectionDiv.appendChild(
                                 key.includes("Condition") ? 
@@ -202,7 +151,7 @@ const MediSenseChat = (function() {
                 }
             }
         } catch (error) {
-            console.debug("Message is not valid JSON, will render as markdown:", error);
+            
         }
     
         // If not JSON or no health data, render as markdown
@@ -341,7 +290,7 @@ const MediSenseChat = (function() {
         const loadingElement = document.getElementById('chat-loading');
         
         if (!chatInput || !errorElement || !loadingElement) {
-            console.error("Required UI elements not found");
+            
             return;
         }
         
@@ -386,7 +335,7 @@ const MediSenseChat = (function() {
             ]);
 
             // Log the raw result at debug level
-            console.log("Gradio API chat result:", result);
+            
             
             // Validate the result structure
             if (!result || typeof result !== 'object') {
@@ -403,7 +352,7 @@ const MediSenseChat = (function() {
                 const fullUpdatedHistory = result.data[0];
 
                 // Verification Log at debug level
-                console.log("*** Received Full History from Backend: ***", JSON.stringify(fullUpdatedHistory));
+                
 
                 // Validate the history structure
                 if (!Array.isArray(fullUpdatedHistory)) {
@@ -429,7 +378,7 @@ const MediSenseChat = (function() {
                         // Add the latest bot message to UI
                         addBotMessage(botResponse);
                     } else {
-                        console.error("Latest turn in received history has unexpected format or missing bot message:", latestTurn);
+                        
                         throw new Error("Received an unexpected format for the latest chat turn.");
                     }
                 } else {
@@ -438,7 +387,7 @@ const MediSenseChat = (function() {
                     addBotMessage("I'm sorry, but I didn't receive a proper response. Please try again.");
                 }
             } else {
-                console.error("Invalid or unexpected response structure received from chat API (expected full history in data[0]):", result);
+                
                 // Fallback logic with improved structure
                 let potentialResponse = "I'm sorry, but I received an invalid response structure. Please try again.";
                 
@@ -459,7 +408,7 @@ const MediSenseChat = (function() {
             }
             
         } catch (error) {
-            console.error("Chat error:", error);
+            
             
             // Categorize errors for better user feedback
             let errorMessage = "";
@@ -521,7 +470,7 @@ const MediSenseChat = (function() {
             addBotMessage(DEFAULT_GREETING);
         } catch (error) {
             // Error during clearChat is already logged by the wrapper
-            console.error("Failed to clear chat history on server:", error);
+            
             
             // Display error message if element exists
             const errorElement = document.getElementById('chat-error');

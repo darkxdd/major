@@ -1,35 +1,22 @@
-// Import the Gradio client library as an ES Module
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@1.14.0/dist/index.min.js";
 
-/**
- * Gradio API wrapper for MediSense
- * Uses Client.connect() and object parameters based on working example.
- */
+const getGradioApiUrl = () => atob('cHVuZWV0aDEvRGlzZWFzZS1EcnVnLVJvQkVSVGEx');
+const GRADIO_API_URL = getGradioApiUrl();
 
-// The main Gradio API URL (use the base space URL)
-const GRADIO_API_URL = "puneeth1/Disease-Drug-RoBERTa1"; // Space name format for Client.connect
-
-// Keep track of the client instance
 let apiClient = null;
 let apiTested = false;
 let apiWorking = false;
 let connectionInProgress = false;
 
-// Store API endpoints (relative paths)
 const API_ENDPOINTS = {
     PREDICT: "/predict_and_recommend",
     CHAT: "/chat_with_medisense",
     CLEAR_CHAT: "/clear_chat"
 };
 
-/**
- * Initialize the Gradio client using Client.connect()
- * @returns {Promise<Object>} The Gradio client instance
- */
 async function initGradioClient() {
     if (apiClient) return apiClient;
     if (connectionInProgress) {
-        // Wait for the existing connection attempt to finish
         return new Promise((resolve, reject) => {
             const checkInterval = setInterval(() => {
                 if (!connectionInProgress) {
@@ -57,15 +44,10 @@ async function initGradioClient() {
         apiClient = null;
         apiWorking = false;
         apiTested = true;
-        throw new Error(`Failed to connect to Gradio API at ${GRADIO_API_URL}. ${error.message}`);
+        throw new Error(`Failed to connect to Gradio API. ${error.message}`);
     }
 }
 
-/**
- * Test the Gradio API connection
- * @param {boolean} force Force testing even if already tested
- * @returns {Promise<boolean>} Whether the API is working
- */
 async function testGradioAPI(force = false) {
     if (apiTested && !force) {
         return apiWorking;
@@ -89,11 +71,6 @@ async function testGradioAPI(force = false) {
     }
 }
 
-/**
- * Make a prediction using the Gradio API (using object parameter)
- * @param {string} symptoms The symptoms text
- * @returns {Promise<Object>} The prediction result object from Gradio
- */
 async function predictDisease(symptoms) {
     if (!apiWorking && !(await testGradioAPI())) {
         throw new Error("Gradio API is not available. Please try again later.");
@@ -122,12 +99,6 @@ async function predictDisease(symptoms) {
     }
 }
 
-/**
- * Send a message to the chatbot using the Gradio API (using object parameters)
- * @param {string} message The user's message
- * @param {Array} history The chat history array
- * @returns {Promise<Object>} The chat response object from Gradio
- */
 async function sendChatMessage(message, history) {
     if (!apiWorking && !(await testGradioAPI())) {
         throw new Error("Gradio API is not available. Please try again later.");
@@ -157,10 +128,6 @@ async function sendChatMessage(message, history) {
     }
 }
 
-/**
- * Clear the chat history using the Gradio API
- * @returns {Promise<void>}
- */
 async function clearChat() {
     if (!apiWorking && !(await testGradioAPI())) {
         return; 
