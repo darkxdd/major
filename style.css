@@ -295,9 +295,16 @@ h1, h2, h3 {
 }
 
 .logo-container h1 {
-    margin-top: 12px;
-    margin-bottom: 0.5rem; 
+    /* margin-top: 12px; Default from h1,h2,h3 rule is 1rem bottom, and this is often enough */
+    margin-bottom: 0.5rem; /* Retained from previous inline style logic */
 }
+
+/* Specific adjustment for logo H1 in auth cards and sidebar if needed */
+.auth-card .logo-container h1,
+.sidebar .logo-container h1 {
+    margin-top: 12px; /* Explicitly adding back the 12px top margin for these specific contexts */
+}
+
 
 /* Button Styles */
 button {
@@ -1102,6 +1109,20 @@ tr:hover {
     padding: 12px 15px;
     vertical-align: middle;
 }
+
+#drugs-com-link {
+    margin-top: 10px;
+}
+
+.history-condition-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.history-condition-link:hover {
+    text-decoration: underline;
+}
+
 /* JSON Formatted Content */
 .json-formatted-content {
     display: flex;
@@ -1324,4 +1345,31 @@ body.dark-mode .markdown-content code {
 
 body.dark-mode .markdown-content pre {
     background: rgba(0, 0, 0, 0.2);
+}
+
+.api-error-banner-styling {
+    background-color: var(--danger-color);
+    color: white; /* Or a suitable contrast color from variables */
+    padding: 1rem;
+    text-align: center;
+    position: fixed; /* Or 'sticky' if preferred */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2000; /* Ensure it's on top of other elements */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.api-error-banner-styling p {
+    margin: 0 0 0.5rem 0;
+}
+.api-error-banner-styling button {
+    background-color: rgba(255,255,255,0.8);
+    color: var(--text-color); /* Or a dark color */
+    border: 1px solid rgba(0,0,0,0.2);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.api-error-banner-styling button:hover {
+    background-color: white;
 }

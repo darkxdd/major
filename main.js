@@ -1,19 +1,31 @@
+// Cache DOM elements that are frequently accessed or used across multiple functions
+let disclaimerBanner, closeDisclaimerButton, apiErrorBanner, apiErrorText, retryApiConnectionButton;
+let chatInputContainerGlobal, sidebarGlobal; // For elements used in specific init/handler functions
+
 document.addEventListener('DOMContentLoaded', function() {
-    initAuth();
+    // Initialize cached elements after DOM is loaded
+    disclaimerBanner = document.querySelector('.disclaimer-banner');
+    closeDisclaimerButton = document.getElementById('close-disclaimer');
+    apiErrorBanner = document.getElementById('api-error-banner');
+    apiErrorText = document.getElementById('api-error-text');
+    retryApiConnectionButton = document.getElementById('retry-api-connection');
+    chatInputContainerGlobal = document.querySelector('.chat-input-container');
+    sidebarGlobal = document.querySelector('.sidebar');
+
+    initAuth(); // Assumes auth.js might use some global selectors if not self-contained
     initNavigation();
     initDarkMode();
 
-    const disclaimer = document.querySelector('.disclaimer-banner');
-    const closeBtn = document.getElementById('close-disclaimer');
+    if (disclaimerBanner && closeDisclaimerButton) {
+        if (localStorage.getItem('disclaimerDismissed')) {
+            disclaimerBanner.style.display = 'none';
+        }
 
-    if (localStorage.getItem('disclaimerDismissed')) {
-        disclaimer.style.display = 'none';
+        closeDisclaimerButton.addEventListener('click', function() {
+            disclaimerBanner.style.display = 'none';
+            localStorage.setItem('disclaimerDismissed', 'true');
+        });
     }
-
-    closeBtn.addEventListener('click', function() {
-        disclaimer.style.display = 'none';
-        localStorage.setItem('disclaimerDismissed', 'true');
-    });
 
     document.addEventListener('gradioApiReady', handleApiReady);
 });
@@ -28,20 +40,17 @@ function handleApiReady(event) {
 }
 
 function showApiError(message = "We're experiencing technical difficulties connecting to our AI services. Please try again later.") {
-    const errorBanner = document.getElementById('api-error-banner');
-    const errorText = document.getElementById('api-error-text');
-    const retryButton = document.getElementById('retry-api-connection');
-
-    if (!errorBanner || !errorText || !retryButton) {
+    // apiErrorBanner, apiErrorText, retryApiConnectionButton are now module-scoped variables
+    if (!apiErrorBanner || !apiErrorText || !retryApiConnectionButton) {
         return;
     }
 
-    errorText.textContent = message;
-    errorBanner.style.display = 'block';
+    apiErrorText.textContent = message;
+    apiErrorBanner.style.display = 'block';
 
-    if (!retryButton.dataset.listenerAttached) {
-        retryButton.addEventListener('click', async function() {
-            errorBanner.style.display = 'none'; 
+    if (!retryApiConnectionButton.dataset.listenerAttached) {
+        retryApiConnectionButton.addEventListener('click', async function() {
+            apiErrorBanner.style.display = 'none'; 
             try {
                 if (!window.gradioApi) {
                     showApiError("Initialization error. Please refresh.");
@@ -57,20 +66,21 @@ function showApiError(message = "We're experiencing technical difficulties conne
                 showApiError(); 
             }
         });
-        retryButton.dataset.listenerAttached = 'true';
+        retryApiConnectionButton.dataset.listenerAttached = 'true';
     }
 }
 
 function hideApiError() {
-    const errorBanner = document.getElementById('api-error-banner');
-    if (errorBanner) {
-        errorBanner.style.display = 'none';
+    // apiErrorBanner is a module-scoped variable
+    if (apiErrorBanner) {
+        apiErrorBanner.style.display = 'none';
     }
 }
 
 function initNavigation() {
-    const navItems = document.querySelectorAll('.nav-item');
-    const pages = document.querySelectorAll('.page');
+    const navItems = document.querySelectorAll('.nav-item'); // Queried once per init, acceptable
+    const pages = document.querySelectorAll('.page'); // Queried once per init, acceptable
+    // chatInputContainerGlobal is now a module-scoped variable
     
     navItems.forEach(item => {
         item.addEventListener('click', function() {
@@ -85,20 +95,20 @@ function initNavigation() {
                 if (page.id === targetPage + '-page') {
                     page.classList.remove('hidden');
                     if (targetPage === 'chatbot') {
-                        document.querySelector('.chat-input-container').classList.remove('hidden');
+                        if (chatInputContainerGlobal) chatInputContainerGlobal.classList.remove('hidden');
                     } else {
-                        document.querySelector('.chat-input-container').classList.add('hidden');
+                        if (chatInputContainerGlobal) chatInputContainerGlobal.classList.add('hidden');
                     }
                     if (targetPage === 'history') {
                         displayPredictionHistory();
                     }
                     if (targetPage === 'chatbot') {
-                        const chatMessages = document.getElementById('chat-messages');
-                        if (chatMessages.children.length === 0) {
+                        const chatMessages = document.getElementById('chat-messages'); // Specific to this block, acceptable
+                        if (chatMessages && chatMessages.children.length === 0) {
                             if (typeof initializeChatUI === 'function') {
                                 initializeChatUI();
                             } else if (typeof chatHistory !== 'undefined' && chatHistory && chatHistory.length > 0) {
-                                addBotMessage(chatHistory[0][0]);
+                                addBotMessage(chatHistory[0][0]); // Assumes addBotMessage is globally available or defined elsewhere
                             }
                         }
                     }
@@ -115,45 +125,46 @@ window.addEventListener('resize', function() {
 });
 
 function handleResponsiveLayout() {
+    // sidebarGlobal is now a module-scoped variable
+    const menuToggleCurrent = document.querySelector('.menu-toggle'); // menuToggle is dynamic
+
     if (window.innerWidth <= 768) {
-        if (!document.querySelector('.menu-toggle')) {
+        if (!menuToggleCurrent) {
             const menuToggle = document.createElement('button');
             menuToggle.className = 'menu-toggle';
             menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
             document.body.appendChild(menuToggle);
             
             menuToggle.addEventListener('click', function() {
-                const sidebar = document.querySelector('.sidebar');
-                sidebar.classList.toggle('active');
+                if (sidebarGlobal) sidebarGlobal.classList.toggle('active');
             });
             
             document.addEventListener('click', function(event) {
-                const sidebar = document.querySelector('.sidebar');
-                const menuToggle = document.querySelector('.menu-toggle');
-                
-                if (sidebar && menuToggle && !sidebar.contains(event.target) && event.target !== menuToggle && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('active');
+                const currentMenuToggle = document.querySelector('.menu-toggle'); // Re-query as it might have been removed
+                if (sidebarGlobal && currentMenuToggle && 
+                    !sidebarGlobal.contains(event.target) && 
+                    event.target !== currentMenuToggle && 
+                    !currentMenuToggle.contains(event.target)) {
+                    sidebarGlobal.classList.remove('active');
                 }
             });
         }
     } else {
-        const menuToggle = document.querySelector('.menu-toggle');
-        if (menuToggle) {
-            menuToggle.remove();
+        if (menuToggleCurrent) {
+            menuToggleCurrent.remove();
         }
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) {
-            sidebar.classList.remove('active');
+        if (sidebarGlobal) {
+            sidebarGlobal.classList.remove('active');
         }
     }
 }
 
-handleResponsiveLayout();
+handleResponsiveLayout(); // Initial call
 
 function initDarkMode() {
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const body = document.body;
-    const toggleIcon = darkModeToggle.querySelector('i');
+    const darkModeToggle = document.getElementById('dark-mode-toggle'); // Specific to this function
+    const body = document.body; // Specific to this function
+    const toggleIcon = darkModeToggle ? darkModeToggle.querySelector('i') : null; // Specific to this function
     const storageKey = 'themePreference';
 
     // Function to set the theme
