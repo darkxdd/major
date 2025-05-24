@@ -1,49 +1,52 @@
 /* Global Styles */
 :root {
-    --primary-color: #5DBAB0;
-    --secondary-color: #8FBC8F;
-    --accent-color: #4EA8A0;
-    --danger-color: #E57373;
+    --primary-color: #007BFF;
+/* Global Styles */
+:root {
+    --primary-color: #007BFF;
+    --secondary-color: #E9ECEF;
+    --accent-color: #5CADFF;
+    --danger-color: #DC3545;
     
     /* Light Mode Defaults */
-    --text-color: #333333;
-    --bg-color: #F4F7F6; /* This will be mostly covered by the bubble background */
-    --card-bg: rgba(255, 255, 255, 0.8); /* Slightly more opaque for better readability */
-    --sidebar-bg: rgba(240, 248, 247, 0.75); /* Light teal tint */
-    --border-color: rgba(255, 255, 255, 0.2); /* Keeping this as is for now, will adjust if needed for contrast */
+    --text-color: #212529;
+    --bg-color: #F8F9FA; /* This will be mostly covered by the bubble background */
+    --card-bg: rgba(255, 255, 255, 0.65); 
+    --sidebar-bg: rgba(255, 255, 255, 0.6); 
+    --border-color: rgba(0, 0, 0, 0.1); 
     --shadow: 0 8px 32px rgba(0, 0, 0, 0.08); /* Keeping this as is for now */
-    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12); /* Keeping this as is for now, base color changes will affect appearance */
-    --input-bg: rgba(255, 255, 255, 0.8); /* Keeping this as is for now */
-    --secondary-btn-bg: rgba(241, 243, 244, 0.7); /* Keeping this as is for now, will adjust if needed */
-    --secondary-btn-hover-bg: rgba(224, 224, 224, 0.8); /* Keeping this as is for now */
-    --nav-item-hover-bg: rgba(93, 186, 176, 0.08); /* Adjusted to new primary color */
-    --nav-item-active-bg: rgba(93, 186, 176, 0.15); /* Adjusted to new primary color */
-    --table-header-bg: rgba(240, 248, 247, 0.7); /* Adjusted to new sidebar-bg like color */
-    --table-row-hover-bg: rgba(230, 230, 230, 0.7); /* Adjusted for neutrality */
-    --chat-bubble-user-bg: rgba(93, 186, 176, 0.9); /* Primary color with good opacity */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); /* Standard shadow */
+    --input-bg: rgba(255, 255, 255, 0.7); 
+    --secondary-btn-bg: rgba(233, 236, 239, 0.7); 
+    --secondary-btn-hover-bg: rgba(222, 226, 230, 0.85); 
+    --nav-item-hover-bg: rgba(0, 123, 255, 0.08); 
+    --nav-item-active-bg: rgba(0, 123, 255, 0.15); 
+    --table-header-bg: rgba(255, 255, 255, 0.7); 
+    --table-row-hover-bg: rgba(0, 123, 255, 0.05); /* Primary at 5% opacity */
+    --chat-bubble-user-bg: rgba(0, 123, 255, 0.9); 
     --chat-bubble-user-text: #FFFFFF;
-    --chat-bubble-bot-bg: rgba(230, 230, 230, 0.75); /* Neutral light gray */
+    --chat-bubble-bot-bg: rgba(233, 236, 239, 0.85); 
     --chat-bubble-bot-text: var(--text-color);
-    --loading-spinner-border: rgba(93, 186, 176, 0.15); /* Adjusted to new primary color */
-    --result-section-bg: rgba(248, 249, 250, 0.6); /* Keeping this as is for now */
-    --disclaimer-bg: rgba(229, 115, 115, 0.08); /* Adjusted to new danger color */
-    --disclaimer-border: rgba(229, 115, 115, 0.2); /* Adjusted to new danger color */
-    --disclaimer-text: #404040;
+    --loading-spinner-border: rgba(0, 123, 255, 0.15); 
+    --result-section-bg: rgba(255, 255, 255, 0.55); 
+    --disclaimer-bg: rgba(220, 53, 69, 0.08); 
+    --disclaimer-border: rgba(220, 53, 69, 0.2); 
+    --disclaimer-text: var(--text-color);
     --disclaimer-icon: var(--danger-color);
-    --disclaimer-close: #555555;
+    --disclaimer-close: #ADB5BD;
     --disclaimer-close-hover: var(--danger-color);
-    --user-icon-color: #555; /* Keeping this as is for now */
+    --user-icon-color: #ADB5BD; 
     --glass-blur: 12px;
 
     /* Bubbles Animation CSS Variables START */
-    --color-bg1: rgb(70, 170, 160);
-    --color-bg2: rgb(40, 80, 90);
-    --color1: 80, 190, 180;
-    --color2: 100, 200, 170;
-    --color3: 60, 150, 200;
-    --color4: 220, 120, 120;
-    --color5: 140, 210, 140;
-    --color-interactive: 100, 180, 220;
+    --color-bg1: rgb(248, 249, 250);
+    --color-bg2: rgb(233, 236, 239);
+    --color1: 70, 130, 180; /* Steel Blue */
+    --color2: 77, 175, 159; /* Soft Teal */
+    --color3: 238, 150, 100; /* Desaturated Coral */
+    --color4: 150, 120, 180; /* Muted Amethyst */
+    --color5: 220, 180, 100; /* Soft Gold */
+    --color-interactive: 70, 130, 180; /* Steel Blue */
     --circle-size: 80%;
     --blending: hard-light;
     /* Bubbles Animation CSS Variables END */
@@ -51,40 +54,42 @@
 
 /* Dark Mode Variables */
 body.dark-mode {
-    --primary-color: #7FCBC4;
-    --secondary-color: #A9D1A9;
-    --accent-color: #8DD3CB;
-    --danger-color: #EF9A9A;
+    --primary-color: #6495ED;
+    --secondary-color: #718096;
+    --accent-color: #5385D1;
+    --danger-color: #EF5350;
 
-    --text-color: #E0E0E0; /* Light gray text */
-    --bg-color: #2C3E50; /* This will be mostly covered by the bubble background */
-    --card-bg: rgba(52, 73, 94, 0.8); /* Slightly more opaque */
-    --sidebar-bg: rgba(44, 62, 80, 0.75); /* Dark desaturated blue/gray tint */
-    --border-color: rgba(255, 255, 255, 0.1);  /* Keeping this as is for now */
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.25); /* Keeping this as is for now */
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Keeping this as is for now */
-    --input-bg: rgba(60, 64, 67, 0.8); /* Keeping this as is for now */
-    --secondary-btn-bg: rgba(60, 64, 67, 0.7); /* Keeping this as is for now */
-    --secondary-btn-hover-bg: rgba(95, 99, 104, 0.8); /* Keeping this as is for now */
-    --nav-item-hover-bg: rgba(127, 203, 196, 0.08); /* Adjusted to new primary color */
-    --nav-item-active-bg: rgba(127, 203, 196, 0.15); /* Adjusted to new primary color */
-    --table-header-bg: rgba(44, 62, 80, 0.7); /* Adjusted to new sidebar-bg like color */
-    --table-row-hover-bg: rgba(60, 64, 67, 0.7); /* Keeping this as is for now */
-    --chat-bubble-user-bg: rgba(127, 203, 196, 0.9); /* Primary dark mode color with good opacity */
-    --chat-bubble-user-text: #1A2B3C; /* Darker text for contrast on light bubble */
-    --chat-bubble-bot-bg: rgba(60, 64, 67, 0.75); /* Slightly darker neutral gray */
-    --chat-bubble-bot-text: var(--text-color);
-    --loading-spinner-border: rgba(127, 203, 196, 0.15); /* Adjusted to new primary color */
-    --result-section-bg: rgba(44, 62, 80, 0.6); /* Adjusted to new sidebar-bg like color with less opacity */
-    --disclaimer-bg: rgba(239, 154, 154, 0.08); /* Adjusted to new danger color */
-    --disclaimer-border: rgba(239, 154, 154, 0.2); /* Adjusted to new danger color */
-    --disclaimer-text: #D0D0D0;
+    --text-color: rgba(255, 255, 255, 0.87);
+    --bg-color: #121212; /* This will be mostly covered by the bubble background */
+    --card-bg: rgba(30, 30, 30, 0.75); /* #1E1E1E at 75% opacity */
+    --sidebar-bg: rgba(30, 30, 30, 0.75); /* #1E1E1E at 75% opacity */
+    --border-color: rgba(255, 255, 255, 0.12); /* Standard border for dark themes */
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.25); /* Checked: OK, generic shadow */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Checked: OK, generic shadow */
+    --input-bg: rgba(30, 30, 30, 0.8); /* #1E1E1E at 80% opacity */
+    --secondary-btn-bg: rgba(30, 30, 30, 0.7); /* #1E1E1E at 70% opacity */
+    --secondary-btn-hover-bg: rgba(45, 45, 45, 0.8); /* A slightly lighter gray for hover, e.g. #2D2D2D at 80% */
+    --nav-item-hover-bg: rgba(100, 149, 237, 0.08); 
+    --nav-item-active-bg: rgba(100, 149, 237, 0.15); 
+    --table-header-bg: rgba(30, 30, 30, 0.7);
+    --table-row-hover-bg: rgba(45, 45, 45, 0.7); /* Lighter gray for hover */
+    --chat-bubble-user-bg: rgba(100, 149, 237, 0.9); 
+    --chat-bubble-user-text: #121212; /* New main dark bg for contrast */
+    --chat-bubble-bot-bg: rgba(30, 30, 30, 0.9); /* New Card bg color at 90% opacity */
+    --chat-bubble-bot-text: rgba(255, 255, 255, 0.87); /* Ensure bot text uses the main text color */
+    --loading-spinner-border: rgba(100, 149, 237, 0.15); 
+    --result-section-bg: rgba(30, 30, 30, 0.6); /* New Card bg color at 60% opacity */
+    --disclaimer-bg: rgba(239, 83, 80, 0.08); /* New Danger color at 8% opacity */
+    --disclaimer-border: rgba(239, 83, 80, 0.2); /* New Danger color at 20% opacity */
+    --disclaimer-text: rgba(255, 255, 255, 0.60); /* Medium emphasis text */
     --disclaimer-icon: var(--danger-color);
-    --disclaimer-close: #B0B0B0;
+    --disclaimer-close: rgba(255, 255, 255, 0.60); /* Medium emphasis text */
     --disclaimer-close-hover: var(--danger-color);
-    --user-icon-color: #bdc1c6; /* Keeping this as is for now */
+    --user-icon-color: rgba(255, 255, 255, 0.60); /* Medium emphasis text */
 
     /* Bubbles Animation Dark Mode CSS Variables (if any specific changes needed, none provided so defaults apply) */
+    --color-bg1: rgb(20, 25, 35);
+    --color-bg2: rgb(10, 15, 25);
 }
 
 * {
@@ -1108,10 +1113,10 @@ tr:hover {
 }
 
 .bot-message-section {
-    background: rgba(255, 255, 255, 0.05);
+    background-color: #E9ECEF;
+    border: 1px solid rgba(206, 212, 218, 0.7);
     border-radius: 12px;
     padding: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 1rem;
 }
 
@@ -1142,6 +1147,13 @@ tr:hover {
     font-size: 1.1rem;
     margin-bottom: 0.75rem;
     font-weight: 500;
+}
+
+/* Light mode specific styling for .condition-item within .bot-message-section */
+body:not(.dark-mode) .bot-message-section .condition-item {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0,0,0,0.05);
+    /* Padding and border-radius are inherited from the general .condition-item rule, so no need to re-declare unless they needed to be different */
 }
 
 /* List Styling */
