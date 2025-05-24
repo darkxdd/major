@@ -405,7 +405,7 @@ async function handlePredictionSubmit() {
             }
         }
     }
-});
+}
 
 // Helper functions to format data for display
 function formatConditionPredictions(predictions) {
