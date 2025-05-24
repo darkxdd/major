@@ -323,10 +323,10 @@ async function handlePredictionSubmit() {
         // const recommendedDrugs = extractRecommendedDrugs(result.data[2]); // Line removed as we use getVerifiedDrugs
 
         // Get verification from chat model for primary condition
-        const verifiedCondition = await getVerifiedCondition(symptomsInput);
+        const verifiedCondition = await getVerifiedCondition(symptomsText);
         
         // Get verified condition predictions with percentages
-        const verifiedConditionPredictions = await getVerifiedConditionPredictions(symptomsInput);
+        const verifiedConditionPredictions = await getVerifiedConditionPredictions(symptomsText);
         
         // Use verified predictions. If null, it means no reliable data was fetched.
         const conditionPredictions = verifiedConditionPredictions || []; // Default to empty array if null
