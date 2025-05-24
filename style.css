@@ -1,49 +1,49 @@
 /* Global Styles */
 :root {
-    --primary-color: #1a73e8;
-    --secondary-color: #34a853;
-    --accent-color: #4285f4;
-    --danger-color: #ea4335;
+    --primary-color: #5DBAB0;
+    --secondary-color: #8FBC8F;
+    --accent-color: #4EA8A0;
+    --danger-color: #E57373;
     
     /* Light Mode Defaults */
-    --text-color: #333;
-    --bg-color: #f8f9fa; /* This will be mostly covered by the bubble background */
-    --card-bg: rgba(255, 255, 255, 0.75);
-    --sidebar-bg: rgba(241, 248, 255, 0.7);
-    --border-color: rgba(255, 255, 255, 0.2);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    --input-bg: rgba(255, 255, 255, 0.8);
-    --secondary-btn-bg: rgba(241, 243, 244, 0.7);
-    --secondary-btn-hover-bg: rgba(224, 224, 224, 0.8);
-    --nav-item-hover-bg: rgba(26, 115, 232, 0.08);
-    --nav-item-active-bg: rgba(26, 115, 232, 0.15);
-    --table-header-bg: rgba(241, 248, 255, 0.7);
-    --table-row-hover-bg: rgba(248, 249, 250, 0.7);
-    --chat-bubble-user-bg: rgba(26, 115, 232, 0.85);
-    --chat-bubble-user-text: white;
-    --chat-bubble-bot-bg: rgba(233, 233, 235, 0.7);
+    --text-color: #333333;
+    --bg-color: #F4F7F6; /* This will be mostly covered by the bubble background */
+    --card-bg: rgba(255, 255, 255, 0.8); /* Slightly more opaque for better readability */
+    --sidebar-bg: rgba(240, 248, 247, 0.75); /* Light teal tint */
+    --border-color: rgba(255, 255, 255, 0.2); /* Keeping this as is for now, will adjust if needed for contrast */
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.08); /* Keeping this as is for now */
+    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12); /* Keeping this as is for now, base color changes will affect appearance */
+    --input-bg: rgba(255, 255, 255, 0.8); /* Keeping this as is for now */
+    --secondary-btn-bg: rgba(241, 243, 244, 0.7); /* Keeping this as is for now, will adjust if needed */
+    --secondary-btn-hover-bg: rgba(224, 224, 224, 0.8); /* Keeping this as is for now */
+    --nav-item-hover-bg: rgba(93, 186, 176, 0.08); /* Adjusted to new primary color */
+    --nav-item-active-bg: rgba(93, 186, 176, 0.15); /* Adjusted to new primary color */
+    --table-header-bg: rgba(240, 248, 247, 0.7); /* Adjusted to new sidebar-bg like color */
+    --table-row-hover-bg: rgba(230, 230, 230, 0.7); /* Adjusted for neutrality */
+    --chat-bubble-user-bg: rgba(93, 186, 176, 0.9); /* Primary color with good opacity */
+    --chat-bubble-user-text: #FFFFFF;
+    --chat-bubble-bot-bg: rgba(230, 230, 230, 0.75); /* Neutral light gray */
     --chat-bubble-bot-text: var(--text-color);
-    --loading-spinner-border: rgba(26, 115, 232, 0.15);
-    --result-section-bg: rgba(248, 249, 250, 0.6);
-    --disclaimer-bg: rgba(234, 67, 53, 0.08);
-    --disclaimer-border: rgba(234, 67, 53, 0.2);
-    --disclaimer-text: #555;
+    --loading-spinner-border: rgba(93, 186, 176, 0.15); /* Adjusted to new primary color */
+    --result-section-bg: rgba(248, 249, 250, 0.6); /* Keeping this as is for now */
+    --disclaimer-bg: rgba(229, 115, 115, 0.08); /* Adjusted to new danger color */
+    --disclaimer-border: rgba(229, 115, 115, 0.2); /* Adjusted to new danger color */
+    --disclaimer-text: #404040;
     --disclaimer-icon: var(--danger-color);
-    --disclaimer-close: #555;
+    --disclaimer-close: #555555;
     --disclaimer-close-hover: var(--danger-color);
-    --user-icon-color: #555;
+    --user-icon-color: #555; /* Keeping this as is for now */
     --glass-blur: 12px;
 
     /* Bubbles Animation CSS Variables START */
-    --color-bg1: rgb(108, 0, 162);
-    --color-bg2: rgb(0, 17, 82);
-    --color1: 18, 113, 255;
-    --color2: 221, 74, 255;
-    --color3: 100, 220, 255;
-    --color4: 200, 50, 50;
-    --color5: 180, 180, 50;
-    --color-interactive: 140, 100, 255;
+    --color-bg1: rgb(70, 170, 160);
+    --color-bg2: rgb(40, 80, 90);
+    --color1: 80, 190, 180;
+    --color2: 100, 200, 170;
+    --color3: 60, 150, 200;
+    --color4: 220, 120, 120;
+    --color5: 140, 210, 140;
+    --color-interactive: 100, 180, 220;
     --circle-size: 80%;
     --blending: hard-light;
     /* Bubbles Animation CSS Variables END */
@@ -51,38 +51,38 @@
 
 /* Dark Mode Variables */
 body.dark-mode {
-    --primary-color: #8ab4f8; /* Lighter blue for dark mode */
-    --secondary-color: #81c995; /* Lighter green */
-    --accent-color: #8ab4f8;
-    --danger-color: #f28b82; /* Lighter red */
+    --primary-color: #7FCBC4;
+    --secondary-color: #A9D1A9;
+    --accent-color: #8DD3CB;
+    --danger-color: #EF9A9A;
 
-    --text-color: #e8eaed; /* Light gray text */
-    --bg-color: #202124; /* This will be mostly covered by the bubble background */
-    --card-bg: rgba(45, 46, 49, 0.75); 
-    --sidebar-bg: rgba(40, 42, 45, 0.7); 
-    --border-color: rgba(255, 255, 255, 0.1); 
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.25); 
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    --input-bg: rgba(60, 64, 67, 0.8);
-    --secondary-btn-bg: rgba(60, 64, 67, 0.7);
-    --secondary-btn-hover-bg: rgba(95, 99, 104, 0.8);
-    --nav-item-hover-bg: rgba(138, 180, 248, 0.08);
-    --nav-item-active-bg: rgba(138, 180, 248, 0.15);
-    --table-header-bg: rgba(40, 42, 45, 0.7);
-    --table-row-hover-bg: rgba(60, 64, 67, 0.7);
-    --chat-bubble-user-bg: rgba(138, 180, 248, 0.85);
-    --chat-bubble-user-text: #202124; 
-    --chat-bubble-bot-bg: rgba(60, 64, 67, 0.7);
+    --text-color: #E0E0E0; /* Light gray text */
+    --bg-color: #2C3E50; /* This will be mostly covered by the bubble background */
+    --card-bg: rgba(52, 73, 94, 0.8); /* Slightly more opaque */
+    --sidebar-bg: rgba(44, 62, 80, 0.75); /* Dark desaturated blue/gray tint */
+    --border-color: rgba(255, 255, 255, 0.1);  /* Keeping this as is for now */
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.25); /* Keeping this as is for now */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Keeping this as is for now */
+    --input-bg: rgba(60, 64, 67, 0.8); /* Keeping this as is for now */
+    --secondary-btn-bg: rgba(60, 64, 67, 0.7); /* Keeping this as is for now */
+    --secondary-btn-hover-bg: rgba(95, 99, 104, 0.8); /* Keeping this as is for now */
+    --nav-item-hover-bg: rgba(127, 203, 196, 0.08); /* Adjusted to new primary color */
+    --nav-item-active-bg: rgba(127, 203, 196, 0.15); /* Adjusted to new primary color */
+    --table-header-bg: rgba(44, 62, 80, 0.7); /* Adjusted to new sidebar-bg like color */
+    --table-row-hover-bg: rgba(60, 64, 67, 0.7); /* Keeping this as is for now */
+    --chat-bubble-user-bg: rgba(127, 203, 196, 0.9); /* Primary dark mode color with good opacity */
+    --chat-bubble-user-text: #1A2B3C; /* Darker text for contrast on light bubble */
+    --chat-bubble-bot-bg: rgba(60, 64, 67, 0.75); /* Slightly darker neutral gray */
     --chat-bubble-bot-text: var(--text-color);
-    --loading-spinner-border: rgba(138, 180, 248, 0.15);
-    --result-section-bg: rgba(40, 42, 45, 0.6);
-    --disclaimer-bg: rgba(242, 139, 130, 0.08);
-    --disclaimer-border: rgba(242, 139, 130, 0.2);
-    --disclaimer-text: #e8eaed;
+    --loading-spinner-border: rgba(127, 203, 196, 0.15); /* Adjusted to new primary color */
+    --result-section-bg: rgba(44, 62, 80, 0.6); /* Adjusted to new sidebar-bg like color with less opacity */
+    --disclaimer-bg: rgba(239, 154, 154, 0.08); /* Adjusted to new danger color */
+    --disclaimer-border: rgba(239, 154, 154, 0.2); /* Adjusted to new danger color */
+    --disclaimer-text: #D0D0D0;
     --disclaimer-icon: var(--danger-color);
-    --disclaimer-close: #e8eaed;
+    --disclaimer-close: #B0B0B0;
     --disclaimer-close-hover: var(--danger-color);
-    --user-icon-color: #bdc1c6;
+    --user-icon-color: #bdc1c6; /* Keeping this as is for now */
 
     /* Bubbles Animation Dark Mode CSS Variables (if any specific changes needed, none provided so defaults apply) */
 }
@@ -149,6 +149,23 @@ html, body {
     background: linear-gradient(40deg, var(--color-bg1), var(--color-bg2));
     top: 0;
     left: 0;
+}
+
+.gradient-bg::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, rgba(0,0,0,0.015) 25%, transparent 25%),
+                      linear-gradient(-45deg, rgba(0,0,0,0.015) 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.015) 75%),
+                      linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.015) 75%);
+    background-size: 2px 2px; /* Small pixel pattern for grain */
+    pointer-events: none; /* Ensure it doesn't interfere with interactions */
+    z-index: 0; /* Position it above the gradient background but below other content */
+    opacity: 0.3; /* Adjust for subtlety - this can be fine-tuned */
 }
 
 .gradient-bg svg { /* SVG for the goo filter, hidden */
