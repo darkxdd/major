@@ -55,15 +55,7 @@ function displayPredictionHistory() {
         conditionLink.href = `https://www.google.com/search?q=${encodeURIComponent(prediction.condition)}`;
         conditionLink.target = '_blank';
         conditionLink.textContent = prediction.condition;
-        conditionLink.style.color = 'var(--primary-color)';
-        conditionLink.style.textDecoration = 'none';
-        conditionLink.style.fontWeight = '500';
-        conditionLink.addEventListener('mouseover', () => {
-            conditionLink.style.textDecoration = 'underline';
-        });
-        conditionLink.addEventListener('mouseout', () => {
-            conditionLink.style.textDecoration = 'none';
-        });
+        conditionLink.classList.add('history-condition-link');
         conditionCell.appendChild(conditionLink);
         row.appendChild(conditionCell);
         

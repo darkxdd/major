@@ -1,19 +1,71 @@
+// Cache DOM elements at module scope or within DOMContentLoaded
+let symptomsInputElement, conditionsInfoBox, durationSelectElement, severitySelectElement,
+    predictButton, clearSymptomsButton, predictionErrorElement, predictionLoadingElement,
+    predictionResultsElement, conditionPredictionsDiv, primaryConditionP, 
+    drugsComLinkButton, drugRecommendationsDiv;
+
 document.addEventListener('DOMContentLoaded', function() {
-    const symptomsInput = document.getElementById('symptoms-input');
-    const infoBox = document.getElementById('conditions-info-box');
-    
-    if (symptomsInput.value.trim() !== '') {
-        infoBox.style.display = 'none';
-    }
-    
-    symptomsInput.addEventListener('input', function() {
-        if (this.value.trim() !== '') {
-            infoBox.style.display = 'none';
-        } else {
-            infoBox.style.display = 'block';
+    symptomsInputElement = document.getElementById('symptoms-input');
+    conditionsInfoBox = document.getElementById('conditions-info-box');
+    durationSelectElement = document.getElementById('symptom-duration');
+    severitySelectElement = document.getElementById('symptom-severity');
+    predictButton = document.getElementById('predict-btn');
+    clearSymptomsButton = document.getElementById('clear-symptoms-btn');
+    predictionErrorElement = document.getElementById('prediction-error');
+    predictionLoadingElement = document.getElementById('prediction-loading');
+    predictionResultsElement = document.getElementById('prediction-results');
+    conditionPredictionsDiv = document.getElementById('condition-predictions');
+    primaryConditionP = document.getElementById('primary-condition');
+    drugsComLinkButton = document.getElementById('drugs-com-link'); // Initial reference
+    drugRecommendationsDiv = document.getElementById('drug-recommendations');
+
+    if (symptomsInputElement && conditionsInfoBox) {
+        if (symptomsInputElement.value.trim() !== '') {
+            conditionsInfoBox.style.display = 'none';
         }
-    });
+        
+        symptomsInputElement.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                conditionsInfoBox.style.display = 'none';
+            } else {
+                conditionsInfoBox.style.display = 'block';
+            }
+        });
+    }
+
+    if (predictButton) {
+        predictButton.addEventListener('click', handlePredictionSubmit);
+    }
+
+    if (clearSymptomsButton) {
+        clearSymptomsButton.addEventListener('click', handleClearSymptoms);
+    }
 });
+
+async function getCleanedGradioChatResponse(prompt) {
+    const tempHistory = [];
+    const result = await window.gradioApi.chat(prompt, tempHistory);
+
+    if (result && result.data && Array.isArray(result.data) && 
+        result.data.length > 0 && Array.isArray(result.data[0]) && 
+        result.data[0].length > 0) {
+        const fullUpdatedHistory = result.data[0];
+        if (fullUpdatedHistory.length > 0) {
+            const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
+            if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
+                let responseText = latestTurn[1].trim();
+                if (responseText.startsWith("```json")) {
+                    responseText = responseText.substring(7);
+                }
+                if (responseText.endsWith("```")) {
+                    responseText = responseText.substring(0, responseText.length - 3);
+                }
+                return responseText.trim();
+            }
+        }
+    }
+    return null; 
+}
 
 async function getVerifiedCondition(symptoms) {
     try {
@@ -29,48 +81,33 @@ INSTRUCTIONS:
 
 Example for sufficient symptoms: {"condition": "Common Cold"}
 Example for insufficient symptoms: {"error": "INSUFFICIENT_SYMPTOMS"}`;        
-        const tempHistory = [];
         
-        const result = await window.gradioApi.chat(prompt, tempHistory);
+        const responseText = await getCleanedGradioChatResponse(prompt);
         
-        if (result && result.data && Array.isArray(result.data) && 
-            result.data.length > 0 && Array.isArray(result.data[0]) && 
-            result.data[0].length > 0) {
-            
-            const fullUpdatedHistory = result.data[0];
-            
-            if (fullUpdatedHistory.length > 0) {
-                const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
-                if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
-                    let responseText = latestTurn[1].trim();
-                    // Remove markdown code block markers if present
-                    if (responseText.startsWith("```json")) {
-                        responseText = responseText.substring(7);
-                    }
-                    if (responseText.endsWith("```")) {
-                        responseText = responseText.substring(0, responseText.length - 3);
-                    }
-                    responseText = responseText.trim(); // Trim again after potential modifications
-                    try {
-                        const jsonResponse = JSON.parse(responseText);
-                        if (jsonResponse.condition) {
-                            let condition = jsonResponse.condition.trim();
-                            condition = condition.split('\n')[0].split('.')[0].trim();
-                            return condition;
-                        } else if (jsonResponse.error && jsonResponse.error === "INSUFFICIENT_SYMPTOMS") {
-                            return "INSUFFICIENT_SYMPTOMS"; 
-                        }
-                    } catch (e) {
-                        let condition = latestTurn[1].trim();
-                        condition = condition.split('\n')[0].split('.')[0].trim();
-                        return condition; 
-                    }
+        if (responseText) {
+            try {
+                const jsonResponse = JSON.parse(responseText);
+                if (jsonResponse.condition) {
+                    let condition = jsonResponse.condition.trim();
+                    condition = condition.split('\n')[0].split('.')[0].trim();
+                    return condition;
+                } else if (jsonResponse.error && jsonResponse.error === "INSUFFICIENT_SYMPTOMS") {
+                    return "INSUFFICIENT_SYMPTOMS"; 
                 }
+            } catch (e) {
+                // If JSON.parse fails, try to extract condition from plain text
+                let condition = responseText.trim();
+                condition = condition.split('\n')[0].split('.')[0].trim();
+                // Basic validation: if it's too long or contains characters not typical for a condition name, it might be a full sentence.
+                if (condition.length > 0 && condition.length < 50 && !condition.includes("{") && !condition.includes("}") && !condition.includes(":")) {
+                    return condition;
+                }
+                console.error("Error parsing or validating condition response:", e, responseText);
             }
         }
-        
         return null; 
     } catch (error) {
+        console.error("Error in getVerifiedCondition:", error);
         return null; 
     }
 }
@@ -107,78 +144,59 @@ Format your response exactly like this example:
 
 Do not deviate from this JSON format.`;
         
-        const tempHistory = [];
-        
-        const result = await window.gradioApi.chat(prompt, tempHistory);
-        
-        if (result && result.data && Array.isArray(result.data) && 
-            result.data.length > 0 && Array.isArray(result.data[0]) && 
-            result.data[0].length > 0) {
-            
-            const fullUpdatedHistory = result.data[0];
-            
-            if (fullUpdatedHistory.length > 0) {
-                const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
-                if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
-                    let responseText = latestTurn[1].trim();
-                    // Remove markdown code block markers if present
-                    if (responseText.startsWith("```json")) {
-                        responseText = responseText.substring(7);
+        const responseText = await getCleanedGradioChatResponse(prompt);
+
+        if (responseText) {
+            try {
+                const jsonResponse = JSON.parse(responseText);
+                if (jsonResponse.predictions && Array.isArray(jsonResponse.predictions)) {
+                    const predictions = jsonResponse.predictions;
+                    let totalPercentage = 0;
+
+                    if (predictions.length !== 10) {
+                        console.warn("API returned " + predictions.length + " predictions, expected 10.");
                     }
-                    if (responseText.endsWith("```")) {
-                        responseText = responseText.substring(0, responseText.length - 3);
-                    }
-                    responseText = responseText.trim(); // Trim again after potential modifications
-                    try {
-                        const jsonResponse = JSON.parse(responseText);
-                        if (jsonResponse.predictions && Array.isArray(jsonResponse.predictions)) {
-                            const predictions = jsonResponse.predictions;
-                            let totalPercentage = 0;
 
-                            if (predictions.length !== 10) {
-                            }
-
-                            predictions.forEach(p => {
-                                if (typeof p.condition === 'string' && typeof p.percentage === 'number') {
-                                    totalPercentage += p.percentage;
-                                } else {
-                                }
-                            });
-
-                            if (Math.abs(totalPercentage - 100) > 1) { 
-                            }
-                            
-                            
-                            return predictions.length > 0 ? predictions : null;
+                    predictions.forEach(p => {
+                        if (typeof p.condition === 'string' && typeof p.percentage === 'number') {
+                            totalPercentage += p.percentage;
                         } else {
+                            console.warn("Invalid prediction object format:", p);
                         }
-                    } catch (e) {
-                        const lines = responseText.split('\n');
-                        const predictions = [];
-                        let totalPercentage = 0;
-                        for (const line of lines) {
-                            const trimmedLine = line.trim();
-                            if (!trimmedLine) continue;
-                            const match = trimmedLine.match(/(.+?):\s*(\d+(?:\.\d+)?)%/);
-                            if (match) {
-                                predictions.push({
-                                    condition: match[1].trim(),
-                                    percentage: parseFloat(match[2])
-                                });
-                                totalPercentage += parseFloat(match[2]);
-                            } else {
-                            }
-                        }
-                        if (predictions.length > 0) {
-                             return predictions;
-                        }
+                    });
+
+                    if (Math.abs(totalPercentage - 100) > 1) { // Allowing a small tolerance for floating point issues
+                        console.warn("Total percentage from API is " + totalPercentage + ", expected 100.");
                     }
+                                        
+                    return predictions.length > 0 ? predictions : null;
+                } else {
+                     console.warn("No 'predictions' array in JSON response:", jsonResponse);
+                }
+            } catch (e) {
+                 console.error("Error parsing JSON for condition predictions:", e, responseText);
+                 // Fallback for non-JSON (though prompt requests JSON)
+                const lines = responseText.split('\n');
+                const predictions = [];
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) continue;
+                    const match = trimmedLine.match(/(.+?):\s*(\d+(?:\.\d+)?)%/);
+                    if (match) {
+                        predictions.push({
+                            condition: match[1].trim(),
+                            percentage: parseFloat(match[2])
+                        });
+                    }
+                }
+                if (predictions.length > 0) {
+                     return predictions;
                 }
             }
         }
-        
         return null; 
     } catch (error) {
+        console.error("Error in getVerifiedConditionPredictions:", error);
         return null; 
     }
 }
@@ -221,58 +239,38 @@ Format your response exactly like this example:
 
 Do not deviate from this JSON format.`;
 
-        const tempHistory = [];
-        const result = await window.gradioApi.chat(prompt, tempHistory);
+        const responseText = await getCleanedGradioChatResponse(prompt);
 
-        if (result && result.data && Array.isArray(result.data) &&
-            result.data.length > 0 && Array.isArray(result.data[0]) &&
-            result.data[0].length > 0) {
-
-            const fullUpdatedHistory = result.data[0];
-            if (fullUpdatedHistory.length > 0) {
-                const latestTurn = fullUpdatedHistory[fullUpdatedHistory.length - 1];
-                if (Array.isArray(latestTurn) && latestTurn.length > 1 && typeof latestTurn[1] === 'string') {
-                    let responseText = latestTurn[1].trim();
-                    // Remove markdown code block markers if present
-                    if (responseText.startsWith("```json")) {
-                        responseText = responseText.substring(7);
-                    }
-                    if (responseText.endsWith("```")) {
-                        responseText = responseText.substring(0, responseText.length - 3);
-                    }
-                    responseText = responseText.trim(); // Trim again after potential modifications
-                    try {
-                        const jsonResponse = JSON.parse(responseText);
-                        if (jsonResponse.drug_recommendations && Array.isArray(jsonResponse.drug_recommendations)) {
-                            return jsonResponse.drug_recommendations.map(drug => {
-                                let ratingValue = null;
-                                let reviewsCount = null;
-                                const ratingMatch = drug.rating ? String(drug.rating).match(/(\d+(?:\.\d+)?)\s*\((\d+)\s*reviews\)/) : null;
-                                if (ratingMatch) {
-                                    ratingValue = parseFloat(ratingMatch[1]);
-                                    reviewsCount = parseInt(ratingMatch[2]);
-                                }
-                                
-                                let usefulVotesValue = null;
-                                if (drug.useful_votes) {
-                                    usefulVotesValue = parseInt(String(drug.useful_votes).replace(/,/g, ''));
-                                }
-
-                                return {
-                                    drug: drug.drug_name,
-                                    rating: ratingValue,
-                                    reviews: reviewsCount,
-                                    usefulVotes: usefulVotesValue,
-                                    sideEffects: drug.side_effects,
-                                    notes: drug.notes
-                                };
-                            }).filter(d => d.drug); // Ensure drug name is present
+        if (responseText) {
+            try {
+                const jsonResponse = JSON.parse(responseText);
+                if (jsonResponse.drug_recommendations && Array.isArray(jsonResponse.drug_recommendations)) {
+                    return jsonResponse.drug_recommendations.map(drug => {
+                        let ratingValue = null;
+                        let reviewsCount = null;
+                        const ratingMatch = drug.rating ? String(drug.rating).match(/(\d+(?:\.\d+)?)\s*\((\d+)\s*reviews\)/) : null;
+                        if (ratingMatch) {
+                            ratingValue = parseFloat(ratingMatch[1]);
+                            reviewsCount = parseInt(ratingMatch[2]);
                         }
-                    } catch (e) {
-                        console.error("Error parsing JSON for drug recommendations:", e, responseText);
-                        return null;
-                    }
+                        
+                        let usefulVotesValue = null;
+                        if (drug.useful_votes) {
+                            usefulVotesValue = parseInt(String(drug.useful_votes).replace(/,/g, ''));
+                        }
+
+                        return {
+                            drug: drug.drug_name,
+                            rating: ratingValue,
+                            reviews: reviewsCount,
+                            usefulVotes: usefulVotesValue,
+                            sideEffects: drug.side_effects,
+                            notes: drug.notes
+                        };
+                    }).filter(d => d.drug); // Ensure drug name is present
                 }
+            } catch (e) {
+                console.error("Error parsing JSON for drug recommendations:", e, responseText);
             }
         }
         return null;
@@ -282,46 +280,46 @@ Do not deviate from this JSON format.`;
     }
 }
 
-// Handle prediction submission
-document.getElementById('predict-btn').addEventListener('click', async function() {
-    let symptomsInput = document.getElementById('symptoms-input').value.trim();
-    const durationSelect = document.getElementById('symptom-duration');
-    const severitySelect = document.getElementById('symptom-severity');
-    const errorElement = document.getElementById('prediction-error');
-    const loadingElement = document.getElementById('prediction-loading');
-    const resultsElement = document.getElementById('prediction-results');
+// Encapsulate prediction logic in a separate function
+async function handlePredictionSubmit() {
+    let symptomsText = symptomsInputElement.value.trim(); // Use cached element
+    // durationSelectElement and severitySelectElement are cached
     
-    // Clear previous results and errors
-    errorElement.textContent = '';
-    errorElement.classList.add('hidden');
-    resultsElement.classList.add('hidden');
+    // Clear previous results and errors using cached elements
+    if (predictionErrorElement) {
+        predictionErrorElement.textContent = '';
+        predictionErrorElement.classList.add('hidden');
+    }
+    if (predictionResultsElement) predictionResultsElement.classList.add('hidden');
     
     // Validate input
-    if (!symptomsInput) {
-        errorElement.textContent = 'Please describe your symptoms';
-        errorElement.classList.remove('hidden');
+    if (!symptomsText) {
+        if (predictionErrorElement) {
+            predictionErrorElement.textContent = 'Please describe your symptoms';
+            predictionErrorElement.classList.remove('hidden');
+        }
         return;
     }
     
     // Append duration and severity to symptoms if selected
-    if (durationSelect.value) {
-        symptomsInput += `. Duration: ${durationSelect.value}`;
+    if (durationSelectElement.value) {
+        symptomsText += `. Duration: ${durationSelectElement.value}`;
     }
     
-    if (severitySelect.value) {
-        symptomsInput += `. Severity: ${severitySelect.value}`;
+    if (severitySelectElement.value) {
+        symptomsText += `. Severity: ${severitySelectElement.value}`;
     }
     
-    // Show loading spinner
-    loadingElement.classList.remove('hidden');
+    // Show loading spinner using cached element
+    if (predictionLoadingElement) predictionLoadingElement.classList.remove('hidden');
     
     try {
         // Make the prediction using the API wrapper
-        const result = await window.gradioApi.predict(symptomsInput);
+        // const result = await window.gradioApi.predict(symptomsInput); // Commented out
         
         // Extract and format the data from result.data
-        const modelConditionPredictions = extractConditionPredictions(result.data[0]);
-        const predictedCondition = extractPredictedCondition(result.data[1]);
+        // const modelConditionPredictions = extractConditionPredictions(result.data[0]); // Commented out
+        // const predictedCondition = extractPredictedCondition(result.data[1]); // Commented out
         // const recommendedDrugs = extractRecommendedDrugs(result.data[2]); // Line removed as we use getVerifiedDrugs
 
         // Get verification from chat model for primary condition
@@ -330,8 +328,8 @@ document.getElementById('predict-btn').addEventListener('click', async function(
         // Get verified condition predictions with percentages
         const verifiedConditionPredictions = await getVerifiedConditionPredictions(symptomsInput);
         
-        // Use verified predictions if available, otherwise use model predictions
-        const conditionPredictions = verifiedConditionPredictions || modelConditionPredictions;
+        // Use verified predictions. If null, it means no reliable data was fetched.
+        const conditionPredictions = verifiedConditionPredictions || []; // Default to empty array if null
         
         // Determine the condition to use for display, drugs, and history
         let displayCondition;
@@ -339,21 +337,18 @@ document.getElementById('predict-btn').addEventListener('click', async function(
 
         if (verifiedCondition === "INSUFFICIENT_SYMPTOMS") {
             displayCondition = "Insufficient symptoms for a reliable assessment.";
-            actualConditionForDisplayAndDrugs = null; // No specific condition for drugs/history
+            actualConditionForDisplayAndDrugs = null; 
         } else if (verifiedCondition) {
             displayCondition = verifiedCondition;
             actualConditionForDisplayAndDrugs = verifiedCondition;
-        } else if (predictedCondition) {
-            displayCondition = predictedCondition;
-            actualConditionForDisplayAndDrugs = predictedCondition;
         } else {
             displayCondition = "Condition could not be determined.";
             actualConditionForDisplayAndDrugs = null;
         }
         
-        // Display results
-        document.getElementById('condition-predictions').innerHTML = formatConditionPredictions(conditionPredictions);
-        document.getElementById('primary-condition').textContent = displayCondition;
+        // Display results using cached elements
+        if (conditionPredictionsDiv) conditionPredictionsDiv.innerHTML = formatConditionPredictions(conditionPredictions);
+        if (primaryConditionP) primaryConditionP.textContent = displayCondition;
         
         // Get verified drugs for the determined condition
         let finalDrugRecommendations = [];
@@ -361,44 +356,45 @@ document.getElementById('predict-btn').addEventListener('click', async function(
             const verifiedDrugs = await getVerifiedDrugs(actualConditionForDisplayAndDrugs);
             finalDrugRecommendations = verifiedDrugs || []; // Use verified drugs or empty array if null
         } else {
-            // If no actual condition, we might still want to clear or hide old drug recommendations
-            // For now, finalDrugRecommendations remains empty, leading to "No drug recommendations" message by formatRecommendedDrugs
+            finalDrugRecommendations = []; 
         }
         
-        // Update drugs.com link
-        const drugsComLink = document.getElementById('drugs-com-link');
-        const newDrugsComLink = drugsComLink.cloneNode(true); // Clone to remove old listeners
-        drugsComLink.parentNode.replaceChild(newDrugsComLink, drugsComLink);
+        // Update drugs.com link - drugsComLinkButton is the initial cached button
+        if (drugsComLinkButton) {
+            const newDrugsComLink = drugsComLinkButton.cloneNode(true); // Clone to remove old listeners
+            drugsComLinkButton.parentNode.replaceChild(newDrugsComLink, drugsComLinkButton);
+            drugsComLinkButton = newDrugsComLink; // Update cached reference to the new button
 
-        if (actualConditionForDisplayAndDrugs) {
-            newDrugsComLink.style.display = ''; // Make it visible
-            newDrugsComLink.href = `https://www.drugs.com/search.php?searchterm=${encodeURIComponent(actualConditionForDisplayAndDrugs)}`;
-            newDrugsComLink.target = '_blank';
-            // Re-attach event listener if it was doing more than just opening a link, or if preferred for consistency
-            newDrugsComLink.addEventListener('click', function(e) {
-                 e.preventDefault(); 
-                 window.open(this.href, '_blank');
-            });
-        } else {
-            newDrugsComLink.style.display = 'none'; // Hide if no condition
-            newDrugsComLink.href = '#'; // Reset href
+            if (actualConditionForDisplayAndDrugs) {
+                drugsComLinkButton.style.display = ''; 
+                drugsComLinkButton.href = `https://www.drugs.com/search.php?searchterm=${encodeURIComponent(actualConditionForDisplayAndDrugs)}`;
+                drugsComLinkButton.target = '_blank';
+                drugsComLinkButton.addEventListener('click', function(e) {
+                    e.preventDefault(); 
+                    window.open(this.href, '_blank');
+                });
+            } else {
+                drugsComLinkButton.style.display = 'none'; 
+                drugsComLinkButton.href = '#'; 
+            }
         }
         
-        document.getElementById('drug-recommendations').innerHTML = formatRecommendedDrugs(finalDrugRecommendations);
+        if (drugRecommendationsDiv) drugRecommendationsDiv.innerHTML = formatRecommendedDrugs(finalDrugRecommendations);
         
         // Store prediction in history
-        savePrediction(symptomsInput, displayCondition); // Save the displayed condition
+        savePrediction(symptomsText, displayCondition); // Use symptomsText (which has appended duration/severity)
         
-        // Show results
-        resultsElement.classList.remove('hidden');
+        // Show results using cached element
+        if (predictionResultsElement) predictionResultsElement.classList.remove('hidden');
     } catch (error) {
         console.error("Prediction error:", error);
-        // Display user-friendly error message based on the error
-        errorElement.textContent = error.message || "Error processing your request. Please try again later.";
-        errorElement.classList.remove('hidden');
+        if (predictionErrorElement) {
+            predictionErrorElement.textContent = error.message || "Error processing your request. Please try again later.";
+            predictionErrorElement.classList.remove('hidden');
+        }
     } finally {
-        // Hide loading spinner
-        loadingElement.classList.add('hidden');
+        // Hide loading spinner using cached element
+        if (predictionLoadingElement) predictionLoadingElement.classList.add('hidden');
         // Clear the server-side chat context that might have been set by prediction calls
         if (window.gradioApi && typeof window.gradioApi.clearChat === 'function') {
             try {
@@ -410,94 +406,6 @@ document.getElementById('predict-btn').addEventListener('click', async function(
         }
     }
 });
-
-// Helper functions to extract data from HTML responses using DOMParser
-function extractConditionPredictions(htmlString) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, 'text/html');
-    const predictions = [];
-    // Assuming the structure is simple divs or similar containing the strong tag and text
-    // This selector might need adjustment based on the actual HTML structure
-    doc.querySelectorAll('body > *').forEach(element => {
-        const strongTag = element.querySelector('strong');
-        if (strongTag) {
-            const textContent = element.textContent || '';
-            const match = textContent.match(/:\s*([0-9.]+)%/);
-            if (match) {
-                predictions.push({
-                    condition: strongTag.textContent.trim(),
-                    percentage: parseFloat(match[1]),
-                });
-            }
-        }
-    });
-    // Sort by percentage descending if needed (assuming API doesn't guarantee order)
-    predictions.sort((a, b) => b.percentage - a.percentage);
-    return predictions;
-}
-
-function extractPredictedCondition(htmlString) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, 'text/html');
-    // Assuming the condition is in a specific paragraph tag
-    const pTag = doc.querySelector('p[style*="font-weight:bold"]');
-    return pTag ? pTag.textContent.trim() : null;
-}
-
-function extractRecommendedDrugs(htmlString) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, 'text/html');
-    const drugs = [];
-    // Convert NodeList to Array to safely use array methods and to have a stable list
-    const potentialDrugTitleTags = Array.from(doc.querySelectorAll('strong[style*="font-size:1.1em"]'));
-
-    potentialDrugTitleTags.forEach((strongTag, index) => {
-        const currentDrugEMs = [];
-        let currentNode = strongTag.nextSibling; // Start searching from the node immediately after the strongTag
-
-        while (currentNode) {
-            // Stop condition 1: Reached the next identified drug title tag
-            if (index + 1 < potentialDrugTitleTags.length && currentNode === potentialDrugTitleTags[index + 1]) {
-                break;
-            }
-
-            // Stop condition 2: Encountered another strong tag that wasn't in our initial list of drug titles.
-            // This is a heuristic to prevent reading too far if the structure is unexpected.
-            if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.nodeName === 'STRONG' && !potentialDrugTitleTags.includes(currentNode)) {
-                break;
-            }
-            
-            // Collect relevant EM tags
-            if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.matches('em[style*="color:#ffcc00"]')) {
-                currentDrugEMs.push(currentNode);
-            }
-            
-            // Optimization: if we've found 4 EM tags for the current drug, we can stop searching for this drug.
-            if (currentDrugEMs.length >= 4) {
-                break; 
-            }
-            
-            currentNode = currentNode.nextSibling;
-        }
-
-        if (currentDrugEMs.length >= 4) {
-            try {
-                drugs.push({
-                    drug: strongTag.textContent.trim().replace(/:$/, ''), // Remove trailing colon if present
-                    rating: parseFloat(currentDrugEMs[0].textContent),
-                    reviews: parseInt(currentDrugEMs[1].textContent.replace(/,/g, '')), // Remove commas from numbers
-                    usefulVotes: parseInt(currentDrugEMs[2].textContent.replace(/,/g, '')), // Remove commas from numbers
-                    sideEffects: currentDrugEMs[3].textContent.trim(),
-                });
-            } catch (e) {
-                console.error("Error parsing drug element for:", strongTag.textContent.trim(), e, currentDrugEMs.map(em => em.outerHTML).join(''));
-            }
-        } else {
-            // console.warn(`[extractRecommendedDrugs] Not enough EM tags for drug: '${strongTag.textContent.trim()}'. Found ${currentDrugEMs.length}, expected 4.`);
-        }
-    });
-    return drugs;
-}
 
 // Helper functions to format data for display
 function formatConditionPredictions(predictions) {
@@ -534,24 +442,24 @@ function formatRecommendedDrugs(drugs) {
     }).join('');
 }
 
-// Clear symptoms input
-document.getElementById('clear-symptoms-btn').addEventListener('click', function() {
-    document.getElementById('symptoms-input').value = '';
-    document.getElementById('symptom-duration').value = '';
-    document.getElementById('symptom-severity').value = '';
-    document.getElementById('prediction-results').classList.add('hidden');
-    document.getElementById('prediction-error').classList.add('hidden');
+// Encapsulate clear symptoms logic
+function handleClearSymptoms() {
+    if (symptomsInputElement) symptomsInputElement.value = '';
+    if (durationSelectElement) durationSelectElement.value = '';
+    if (severitySelectElement) severitySelectElement.value = '';
+    if (predictionResultsElement) predictionResultsElement.classList.add('hidden');
+    if (predictionErrorElement) predictionErrorElement.classList.add('hidden');
     
-    // Show the info box again when clearing the input
-    document.getElementById('conditions-info-box').style.display = 'block';
-});
+    // Show the info box again when clearing the input using cached element
+    if (conditionsInfoBox) conditionsInfoBox.style.display = 'block';
+}
 
 // Save prediction to local storage
 function savePrediction(symptomsText, predictedCondition) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     
     if (!currentUser) {
-        console.error("Cannot save prediction: No user logged in");
+        // Error handling is now in userData.js, but still good to return early.
         return;
     }
     
@@ -568,52 +476,4 @@ function savePrediction(symptomsText, predictedCondition) {
     
     // Save updated prediction history
     saveUserPredictions(userPredictions);
-}
-
-// Get current user's prediction history
-function getUserPredictions() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (!currentUser) {
-        console.error("Cannot get predictions: No user logged in");
-        return { email: '', predictions: [] };
-    }
-    
-    // Get all user predictions
-    const allUserPredictions = JSON.parse(localStorage.getItem('userPredictions')) || [];
-    
-    // Find current user's predictions
-    let userPredictions = allUserPredictions.find(up => up.email === currentUser.email);
-    
-    // If not found, create new entry
-    if (!userPredictions) {
-        userPredictions = {
-            email: currentUser.email,
-            predictions: []
-        };
-        allUserPredictions.push(userPredictions);
-        localStorage.setItem('userPredictions', JSON.stringify(allUserPredictions));
-    }
-    
-    return userPredictions;
-}
-
-// Save user's prediction history
-function saveUserPredictions(userPredictions) {
-    // Get all user predictions
-    const allUserPredictions = JSON.parse(localStorage.getItem('userPredictions')) || [];
-    
-    // Find index of current user's predictions
-    const index = allUserPredictions.findIndex(up => up.email === userPredictions.email);
-    
-    if (index !== -1) {
-        // Update existing entry
-        allUserPredictions[index] = userPredictions;
-    } else {
-        // Add new entry
-        allUserPredictions.push(userPredictions);
-    }
-    
-    // Save to local storage
-    localStorage.setItem('userPredictions', JSON.stringify(allUserPredictions));
 }

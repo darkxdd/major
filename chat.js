@@ -141,6 +141,7 @@ const MediSenseChat = (function() {
                         "LifestyleAndHomeCare", "PreventionTips", "WarningSigns", "Disclaimer"
                     ];
 
+                    const fragment = document.createDocumentFragment(); // Create a DocumentFragment
                     const jsonFormattedContentDiv = document.createElement('div');
                     jsonFormattedContentDiv.className = 'json-formatted-content';
 
@@ -269,11 +270,11 @@ const MediSenseChat = (function() {
                             jsonFormattedContentDiv.appendChild(sectionDiv);
                         }
                     });
-                    contentDiv.appendChild(jsonFormattedContentDiv);
+                    fragment.appendChild(jsonFormattedContentDiv); // Append the fully built div to the fragment
+                    contentDiv.appendChild(fragment); // Append the fragment to the live DOM once
                 } else {
                     // It's an object, but not the specific health report, treat as generic JSON or fallback
                     // For now, let it fall through to markdown rendering if not specifically handled.
-                    // console.log("Object message, but not recognized health report structure.");
                 }
             }
         } catch (error) {
