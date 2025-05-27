@@ -1,5 +1,5 @@
 // Cache DOM elements at module scope or within DOMContentLoaded
-let symptomsInputElement, conditionsInfoBox, durationSelectElement, severitySelectElement,
+let symptomsInputElement, conditionsInfoBox, emergencyContactsBox, durationSelectElement, severitySelectElement,
     predictButton, clearSymptomsButton, predictionErrorElement, predictionLoadingElement,
     predictionResultsElement, conditionPredictionsDiv, primaryConditionP, 
     drugsComLinkButton, drugRecommendationsDiv;
@@ -7,6 +7,7 @@ let symptomsInputElement, conditionsInfoBox, durationSelectElement, severitySele
 document.addEventListener('DOMContentLoaded', function() {
     symptomsInputElement = document.getElementById('symptoms-input');
     conditionsInfoBox = document.getElementById('conditions-info-box');
+    emergencyContactsBox = document.getElementById('emergency-contacts-box');
     durationSelectElement = document.getElementById('symptom-duration');
     severitySelectElement = document.getElementById('symptom-severity');
     predictButton = document.getElementById('predict-btn');
@@ -22,13 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (symptomsInputElement && conditionsInfoBox) {
         if (symptomsInputElement.value.trim() !== '') {
             conditionsInfoBox.style.display = 'none';
+            if (emergencyContactsBox) emergencyContactsBox.style.display = 'none';
         }
         
         symptomsInputElement.addEventListener('input', function() {
             if (this.value.trim() !== '') {
                 conditionsInfoBox.style.display = 'none';
+                if (emergencyContactsBox) emergencyContactsBox.style.display = 'none';
             } else {
                 conditionsInfoBox.style.display = 'block';
+                if (emergencyContactsBox) emergencyContactsBox.style.display = 'block';
             }
         });
     }
@@ -444,14 +448,17 @@ function formatRecommendedDrugs(drugs) {
 
 // Encapsulate clear symptoms logic
 function handleClearSymptoms() {
-    if (symptomsInputElement) symptomsInputElement.value = '';
+    if (symptomsInputElement) {
+        symptomsInputElement.value = '';
+        if (conditionsInfoBox) conditionsInfoBox.style.display = 'block';
+        if (emergencyContactsBox) emergencyContactsBox.style.display = 'block';
+    }
+    
     if (durationSelectElement) durationSelectElement.value = '';
     if (severitySelectElement) severitySelectElement.value = '';
+    
     if (predictionResultsElement) predictionResultsElement.classList.add('hidden');
     if (predictionErrorElement) predictionErrorElement.classList.add('hidden');
-    
-    // Show the info box again when clearing the input using cached element
-    if (conditionsInfoBox) conditionsInfoBox.style.display = 'block';
 }
 
 // Save prediction to local storage

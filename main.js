@@ -118,6 +118,9 @@ function initNavigation() {
             });
         });
     });
+    
+    // Initialize emergency dropdown toggle
+    initEmergencyDropdown();
 }
 
 window.addEventListener('resize', function() {
@@ -193,5 +196,31 @@ function initDarkMode() {
     darkModeToggle.addEventListener('click', () => {
         const isDark = body.classList.contains('dark-mode');
         setTheme(!isDark); // Toggle the theme
+    });
+}
+
+function initEmergencyDropdown() {
+    const emergencyToggle = document.getElementById('emergency-toggle');
+    const emergencyDropdown = document.getElementById('emergency-dropdown');
+    const toggleIcon = document.querySelector('.emergency-toggle-icon');
+    
+    // Check if dropdown should be open based on localStorage
+    const isOpen = localStorage.getItem('emergencyDropdownOpen') === 'true';
+    if (isOpen) {
+        emergencyDropdown.classList.add('active');
+        toggleIcon.classList.add('active');
+    } else {
+        // Ensure dropdown is fully closed by default
+        emergencyDropdown.classList.remove('active');
+        toggleIcon.classList.remove('active');
+    }
+    
+    emergencyToggle.addEventListener('click', function() {
+        emergencyDropdown.classList.toggle('active');
+        toggleIcon.classList.toggle('active');
+        
+        // Store dropdown state
+        const isNowOpen = emergencyDropdown.classList.contains('active');
+        localStorage.setItem('emergencyDropdownOpen', isNowOpen);
     });
 }
