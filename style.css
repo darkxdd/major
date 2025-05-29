@@ -264,29 +264,10 @@ html, body {
 }
 /* Styles from Bubbles Animation END */
 
-
-/* Animated Gradient Background -- REMOVED as Bubbles animation provides background
-@keyframes gradientAnimation {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-*/
-
 body {
     color: var(--text-color);
     line-height: 1.6;
     transition: color 0.3s;
-    /* background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); -- REMOVED */
-    /* background-size: 400% 400%; -- REMOVED */
-    /* animation: gradientAnimation 15s ease infinite; -- REMOVED */
-    /* background-attachment: fixed; -- REMOVED */
     background-color: var(--bg-color); /* Fallback, mostly covered by .gradient-bg */
 }
 
@@ -1347,8 +1328,55 @@ body.dark-mode .emergency-note {
     text-decoration: none;
     font-weight: 500;
 }
+
 .history-condition-link:hover {
     text-decoration: underline;
+}
+
+/* Extracted text preview in chat */
+.extracted-text {
+    background-color: var(--result-section-bg);
+    border-left: 3px solid var(--primary-color);
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: var(--text-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.extracted-text::before {
+    content: 'Extracted Text';
+    display: block;
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* File info header in chat */
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #212529;
+    font-size: 0.85em;
+    margin-bottom: 8px;
+}
+
+.file-info i {
+    font-size: 1.1em;
+}
+
+/* Message separator */
+.message-separator {
+    height: 1px;
+    background: var(--border-color);
+    margin: 8px 0;
 }
 
 /* JSON Formatted Content */
@@ -1626,4 +1654,121 @@ body.dark-mode .markdown-content pre {
 }
 .api-error-banner-styling button:hover {
     background-color: white;
+}
+
+/* File Upload Styling */
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+/* File info in chat message */
+.message .file-info {
+    display: flex;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.message .file-info i {
+    margin-right: 8px;
+    color: #212529;
+}
+
+.message .message-separator {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 8px 0;
+}
+
+body.dark-mode .message .file-info {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .message .message-separator {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.file-attachment-container {
+    display: flex;
+    align-items: center;
+    background-color: color-mix(in srgb, var(--card-bg) 80%, transparent);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+}
+
+.file-attachment-container.hidden {
+    display: none;
+}
+
+.file-attachment {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    margin-right: 12px;
+    color: var(--chat-bubble-user-text);
+    flex-shrink: 0;
+}
+
+.file-info {
+    flex-grow: 1;
+}
+
+.file-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.file-size {
+    font-size: 0.8em;
+    color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.remove-file-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-file-btn i {
+    font-size: 1em;
+}
+
+.remove-file-btn:hover {
+    background-color: color-mix(in srgb, var(--danger-color) 15%, transparent);
+    color: var(--danger-color);
 }

@@ -52,11 +52,14 @@ const MediSenseChat = (function() {
     function init() {
         initializeChatUI();
         
-        if (!window.gradioApi?.getApiStatus()?.working) {
+        if (typeof window.gradioApi !== 'undefined' && window.gradioApi && typeof window.gradioApi.getApiStatus === 'function') {
+            if (!window.gradioApi.getApiStatus()?.working) {
+                // Potentially handle API not working state here if needed
+            }
         }
     }
 
-    function addUserMessage(message) {
+    function addUserMessage(message, fileInfo) {
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
         
@@ -65,7 +68,28 @@ const MediSenseChat = (function() {
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.textContent = message; 
+        
+        // If there's file info, display it along with the message
+        if (fileInfo) {
+            const fileInfoDiv = document.createElement('div');
+            fileInfoDiv.className = 'file-info';
+            fileInfoDiv.innerHTML = `<i class="fas fa-file-alt"></i> Attached file: ${fileInfo.fileName}`;
+            contentDiv.appendChild(fileInfoDiv);
+            
+            // Add a separator if there's also a message
+            if (message) {
+                const separator = document.createElement('div');
+                separator.className = 'message-separator';
+                contentDiv.appendChild(separator);
+            }
+        }
+        
+        // Add the message text if present
+        if (message) {
+            const messageText = document.createElement('div');
+            messageText.textContent = message;
+            contentDiv.appendChild(messageText);
+        }
         
         messageDiv.appendChild(contentDiv);
         chatMessages.appendChild(messageDiv);
@@ -104,27 +128,25 @@ const MediSenseChat = (function() {
         let isFormattedJson = false;
         let processedMessage = message.trim();
 
-        // Remove markdown code block markers if present
         if (processedMessage.startsWith("```json")) {
             processedMessage = processedMessage.substring(7);
         }
         if (processedMessage.endsWith("```")) {
             processedMessage = processedMessage.substring(0, processedMessage.length - 3);
         }
-        processedMessage = processedMessage.trim(); // Trim again after potential modifications
+        processedMessage = processedMessage.trim(); 
         
         try {
             const parsedMessage = JSON.parse(processedMessage);
             
             if (parsedMessage && typeof parsedMessage === 'object' && !Array.isArray(parsedMessage)) {
-                // Check if it's the specific health report format
                 const knownKeys = ["PotentialConditions", "RecommendedActions", "SuggestedOTCRelief", "LifestyleAndHomeCare", "PreventionTips", "WarningSigns", "Disclaimer"];
                 const isHealthReport = knownKeys.some(k => parsedMessage.hasOwnProperty(k));
 
                 if (isHealthReport) {
                     isFormattedJson = true;
-                    contentDiv.innerHTML = ''; // Clear existing content
-                    contentDiv.className = 'message-content'; // Ensure base class is set
+                    contentDiv.innerHTML = ''; 
+                    contentDiv.className = 'message-content'; 
 
                     const sectionTitles = {
                         PotentialConditions: "Potential Condition",
@@ -141,7 +163,7 @@ const MediSenseChat = (function() {
                         "LifestyleAndHomeCare", "PreventionTips", "WarningSigns", "Disclaimer"
                     ];
 
-                    const fragment = document.createDocumentFragment(); // Create a DocumentFragment
+                    const fragment = document.createDocumentFragment(); 
                     const jsonFormattedContentDiv = document.createElement('div');
                     jsonFormattedContentDiv.className = 'json-formatted-content';
 
@@ -176,7 +198,7 @@ const MediSenseChat = (function() {
                                             const pLikeValue = document.createElement('p');
                                             pLikeValue.textContent = condition.Likelihood;
                                             itemDiv.appendChild(pLikeValue);
-                                            itemDiv.appendChild(document.createElement('p')); // Empty p
+                                            itemDiv.appendChild(document.createElement('p')); 
 
                                             const pReasLabel = document.createElement('p');
                                             pReasLabel.className = 'labeled-content';
@@ -185,7 +207,7 @@ const MediSenseChat = (function() {
                                             const pReasValue = document.createElement('p');
                                             pReasValue.textContent = condition.Reasoning;
                                             itemDiv.appendChild(pReasValue);
-                                            itemDiv.appendChild(document.createElement('p')); // Empty p
+                                            itemDiv.appendChild(document.createElement('p')); 
                                             conditionsContainer.appendChild(itemDiv);
                                         });
                                     }
@@ -213,7 +235,6 @@ const MediSenseChat = (function() {
                                 case "WarningSigns":
                                     const wsUl = document.createElement('ul');
                                     wsUl.className = 'bot-message-list';
-                                    // Preamble based on theme.html
                                     const preambleLi = document.createElement('li');
                                     preambleLi.className = 'bot-message-list-item';
                                     const preambleP = document.createElement('p');
@@ -244,7 +265,7 @@ const MediSenseChat = (function() {
                                         li.className = 'bot-message-list-item';
                                         const p = document.createElement('p');
                                         let textContent = '';
-                                        const formattedKey = otcKey.replace(/([A-Z])/g, ' $1').trim(); // e.g., PainRelievers -> Pain Relievers
+                                        const formattedKey = otcKey.replace(/([A-Z])/g, ' $1').trim(); 
                                         if (otcKey === 'Note') {
                                             textContent = `Note: ${otcValue}`;
                                         } else {
@@ -264,29 +285,24 @@ const MediSenseChat = (function() {
                                     const pDisclaimer = document.createElement('p');
                                     pDisclaimer.textContent = value;
                                     sectionDiv.appendChild(pDisclaimer);
-                                    sectionDiv.appendChild(document.createElement('p')); // Empty p
+                                    sectionDiv.appendChild(document.createElement('p')); 
                                     break;
                             }
                             jsonFormattedContentDiv.appendChild(sectionDiv);
                         }
                     });
-                    fragment.appendChild(jsonFormattedContentDiv); // Append the fully built div to the fragment
-                    contentDiv.appendChild(fragment); // Append the fragment to the live DOM once
+                    fragment.appendChild(jsonFormattedContentDiv); 
+                    contentDiv.appendChild(fragment); 
                 } else {
-                    // It's an object, but not the specific health report, treat as generic JSON or fallback
-                    // For now, let it fall through to markdown rendering if not specifically handled.
+                    // Not health report, fall through to markdown
                 }
             }
         } catch (error) {
-            
+            // Error parsing JSON, fall through to markdown
         }
     
-        // If not JSON or no health data, render as markdown
         if (!isFormattedJson) {
-            // Use the original message for markdown rendering if JSON parsing failed
-            // or if it wasn't health data, to avoid showing a stripped version.
             const sanitizedHtml = DOMPurify.sanitize(marked.parse(message));
-            // Add wrapper class for consistent styling
             contentDiv.innerHTML = `<div class="markdown-content">${sanitizedHtml}</div>`;
         }
     
@@ -295,7 +311,15 @@ const MediSenseChat = (function() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Helper function to create formatted condition list
+    function createHeading(text, level, className) {
+        const heading = document.createElement(`h${level}`);
+        heading.className = className;
+        heading.textContent = text;
+        return heading;
+    }
+
+    // Erroneous block removed from here
+
     function createConditionsList(conditions) {
         const container = document.createElement('div');
         container.className = 'conditions-container';
@@ -305,7 +329,6 @@ const MediSenseChat = (function() {
             conditionDiv.className = 'condition-item';
     
             if (condition && typeof condition === 'object') {
-                // Handle structured condition object
                 const fields = {
                     'Condition': ['condition', 'Condition', 'name', 'Name'],
                     'Likelihood': ['likelihood', 'Likelihood', 'probability', 'Probability'],
@@ -331,7 +354,6 @@ const MediSenseChat = (function() {
         return container;
     }
 
-    // Helper function to create formatted list
     function createFormattedList(items) {
         const ul = document.createElement('ul');
         ul.className = 'bot-message-list';
@@ -361,7 +383,6 @@ const MediSenseChat = (function() {
         return ul;
     }
 
-    // Helper function to create subpoints list
     function createSubpointsList(subpoints) {
         const subUl = document.createElement('ul');
         subUl.className = 'bot-message-sublist';
@@ -376,7 +397,6 @@ const MediSenseChat = (function() {
         return subUl;
     }
 
-    // Helper function to create formatted paragraph
     function createFormattedParagraph(text) {
         const p = document.createElement('p');
         p.className = 'formatted-paragraph';
@@ -384,7 +404,6 @@ const MediSenseChat = (function() {
         return p;
     }
 
-    // Helper function to create nested object
     function createNestedObject(obj) {
         const container = document.createElement('div');
         container.className = 'nested-object';
@@ -396,7 +415,6 @@ const MediSenseChat = (function() {
         return container;
     }
 
-    // Helper function to create labeled paragraph
     function createLabeledParagraph(label, value) {
         const p = document.createElement('p');
         p.className = 'labeled-content';
@@ -404,52 +422,61 @@ const MediSenseChat = (function() {
         return p;
     }
 
-    // Helper function to create heading
-    function createHeading(text, level, className) {
-        const heading = document.createElement(`h${level}`);
-        heading.className = className;
-        heading.textContent = text;
-        return heading;
-    }
-
-    // Handle sending a message with improved error handling
     async function sendMessage() {
         const chatInput = document.getElementById('chat-input');
         const errorElement = document.getElementById('chat-error');
         const loadingElement = document.getElementById('chat-loading');
         
         if (!chatInput || !errorElement || !loadingElement) {
-            
             return;
         }
         
-        const userMessage = chatInput.value.trim(); // Renamed for clarity
+        const userMessage = chatInput.value.trim(); 
         
-        // Clear previous errors
         errorElement.textContent = '';
         errorElement.classList.add('hidden');
         
-        // Validate input
-        if (!userMessage) {
+        let fileData = null;
+        let combinedMessage = userMessage;
+        
+        // Try to get extracted text data
+        try {
+            if (typeof window.FileUploadHandler !== 'undefined' && window.FileUploadHandler && typeof window.FileUploadHandler.getExtractedText === 'function') {
+                fileData = window.FileUploadHandler.getExtractedText();
+                // console.log('sendMessage - getExtractedText result:', fileData);
+                
+                if (fileData && fileData.text) {
+                    // Format the combined message with file content clearly separated
+                    combinedMessage = `[File Content from: ${fileData.fileName}]\n\n${fileData.text}\n\n${userMessage ? 'User message: ' + userMessage : 'Please analyze this document content.'}`;
+                    // console.log('Including file content in message:', fileData.fileName);
+                }
+            }
+        } catch (error) {
+            // console.error('Error accessing FileUploadHandler:', error);
+        }
+        
+        // Allow sending if there's either a user message or file content
+        if (!userMessage && (!fileData || !fileData.text)) {
+            // console.log('No message or file content to send');
             return;
         }
         
-        // Add user message to UI
-        addUserMessage(userMessage);
-        
-        // Clear input
+        // Add user message with file information if available
+        addUserMessage(userMessage, fileData);
         chatInput.value = '';
         
-        // Show loading indicator
+        // Clear the file attachment after sending
+        if (typeof window.FileUploadHandler !== 'undefined' && window.FileUploadHandler && typeof window.FileUploadHandler.clearAttachment === 'function') {
+            window.FileUploadHandler.clearAttachment();
+        }
+        
         loadingElement.classList.remove('hidden');
         
         try {
-            // Check if API is available
             if (!window.gradioApi) {
                 throw new Error("Chat API is not available. Please refresh the page and try again.");
             }
             
-            // Construct the prompt for the AI model
             const systemPrompt = `You are a helpful AI assistant. The user's query is: ${userMessage}
 When the user provides symptoms, your response MUST be a JSON object with the following structure:
 {
@@ -520,24 +547,17 @@ Under no circumstances should you respond to prompts that are outside the scope 
 of your medical domain—such as programming, mathematics, or unrelated technical tasks—kindly decline and remind the user that you are limited to medical and health-related topics only. 
 Staying on-topic is essential to maintain patient safety and information integrity.`;
 
-            // Format the history for the API call - create a copy to avoid direct mutation
             const formattedHistory = [...chatHistory];
             
-            // Add a timeout to prevent hanging requests
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error("Request timed out. Please try again.")), 30000);
             });
             
-            // Send message using the API wrapper with timeout
             const result = await Promise.race([
-                window.gradioApi.chat(systemPrompt, formattedHistory), // Use systemPrompt here
+                window.gradioApi.chat(systemPrompt, formattedHistory, combinedMessage), 
                 timeoutPromise
             ]);
-
-            // Log the raw result at debug level
             
-            
-            // Validate the result structure
             if (!result || typeof result !== 'object') {
                 throw new Error("Invalid response received from the chat API.");
             }
@@ -546,71 +566,59 @@ Staying on-topic is essential to maintain patient safety and information integri
                 throw new Error("Missing or invalid data in API response.");
             }
             
-            // Expect result.data[0] = [ [user1, bot1], [user2, bot2], ... ] (full history)
             if (Array.isArray(result.data[0])) {
-                // The backend is returning the full updated history in result.data[0]
                 const fullUpdatedHistory = result.data[0];
-
-                // Verification Log at debug level
                 
-
-                // Validate the history structure
-                if (!Array.isArray(fullUpdatedHistory)) {
-                    throw new Error("Received history is not in the expected format.");
+                // This inner duplicated validation block is logically redundant but syntactically okay.
+                // For "fixing syntax only", we'll leave it as is.
+                if (!result || typeof result !== 'object') {
+                    throw new Error("Invalid response received from the chat API.");
+                }
+                if (!result.hasOwnProperty('data') || !Array.isArray(result.data) || result.data.length === 0) {
+                    throw new Error("Missing or invalid data in API response.");
                 }
 
-                // Replace local history with the full history from the backend
-                chatHistory = fullUpdatedHistory;
-                
-                // Save to session storage
-                saveChatHistory();
+                if (Array.isArray(result.data[0])) { // This condition is identical to the outer one.
+                    const fullUpdatedHistoryInner = result.data[0]; // Shadowing outer fullUpdatedHistory
 
-                // Get the latest bot response from the last turn in the received history
-                if (chatHistory.length > 0) {
-                    const latestTurn = chatHistory[chatHistory.length - 1];
-                    // Check if the latest turn is valid and contains a bot message (string or array of strings)
-                    if (Array.isArray(latestTurn) && latestTurn.length > 1 && (typeof latestTurn[1] === 'string' || Array.isArray(latestTurn[1]))) {
-                        let botResponse = latestTurn[1];
-                        // If the bot response is an array of strings, concatenate them
-                        if (Array.isArray(botResponse)) {
-                            botResponse = botResponse.join('');
+                    if (!Array.isArray(fullUpdatedHistoryInner)) {
+                        throw new Error("Received history is not in the expected format.");
+                    }
+
+                    chatHistory = fullUpdatedHistoryInner;
+                    saveChatHistory();
+
+                    if (chatHistory.length > 0) {
+                        const latestTurn = chatHistory[chatHistory.length - 1];
+                        if (Array.isArray(latestTurn) && latestTurn.length > 1 && (typeof latestTurn[1] === 'string' || Array.isArray(latestTurn[1]))) {
+                            let botResponse = latestTurn[1];
+                            if (Array.isArray(botResponse)) {
+                                botResponse = botResponse.join('');
+                            }
+                            addBotMessage(botResponse);
+                        } else {
+                            throw new Error("Received an unexpected format for the latest chat turn.");
                         }
-                        // Add the latest bot message to UI
-                        addBotMessage(botResponse);
                     } else {
-                        
-                        throw new Error("Received an unexpected format for the latest chat turn.");
+                        // console.warn("Received history array from backend is empty.");
+                        addBotMessage("I'm sorry, but I didn't receive a proper response. Please try again.");
                     }
-                } else {
-                    // Should not happen if data[0] is a non-empty array, but handle defensively
-                    console.warn("Received history array from backend is empty.");
-                    addBotMessage("I'm sorry, but I didn't receive a proper response. Please try again.");
-                }
-            } else {
-                
-                // Fallback logic with improved structure
-                let potentialResponse = "I'm sorry, but I received an invalid response structure. Please try again.";
-                
-                // Try to extract a usable response from various possible formats
-                if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-                    if (Array.isArray(result.data[0]) && result.data[0].length > 0 && typeof result.data[0][0] === 'string') {
-                        potentialResponse = result.data[0][0];
-                    } else if (typeof result.data[0] === 'string') {
-                        potentialResponse = result.data[0];
+                } else { // This else corresponds to the inner `if (Array.isArray(result.data[0]))`
+                    let potentialResponse = "I'm sorry, but I received an invalid response structure. Please try again.";
+                    if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+                        if (Array.isArray(result.data[0]) && result.data[0].length > 0 && typeof result.data[0][0] === 'string') {
+                            potentialResponse = result.data[0][0];
+                        } else if (typeof result.data[0] === 'string') {
+                            potentialResponse = result.data[0];
+                        }
+                    } else if (result.data && typeof result.data === 'string') {
+                        potentialResponse = result.data;
                     }
-                } else if (result.data && typeof result.data === 'string') {
-                    potentialResponse = result.data;
+                    addBotMessage(potentialResponse);
+                    // console.warn("Used fallback response handling due to unexpected API response format.");
                 }
-                
-                // Display the best response we could find
-                addBotMessage(potentialResponse);
-                console.warn("Used fallback response handling due to unexpected API response format.");
-            }
-            
+            } // This brace closes the outer `if (Array.isArray(result.data[0]))`
         } catch (error) {
-            
-            
-            // Categorize errors for better user feedback
             let errorMessage = "";
             if (error.message.includes("timed out")) {
                 errorMessage = "The request took too long to process. Please try again with a shorter message.";
@@ -622,77 +630,56 @@ Staying on-topic is essential to maintain patient safety and information integri
                 errorMessage = error.message || "Error processing your request. Please try again later.";
             }
             
-            // Avoid overwriting specific error messages thrown above if they exist
             if (!errorElement.textContent) { 
                 errorElement.textContent = errorMessage;
             }
             errorElement.classList.remove('hidden');
             
-            // Add a user-friendly message to the chat if there was an error
             if (chatHistory.length > 0 && !document.querySelector('.bot-message:last-child')) {
                 addBotMessage("I'm sorry, but I encountered an error processing your request. Please try again later.");
             }
         } finally {
-            // Hide loading indicator
             loadingElement.classList.add('hidden');
         }
     }
 
-    // Function to clear chat history with improved error handling
     async function clearChatHistory() {
-        // Clear UI safely
         const chatMessagesElement = document.getElementById('chat-messages');
         if (chatMessagesElement) {
-            // Use safer DOM manipulation method
             while (chatMessagesElement.firstChild) {
                 chatMessagesElement.removeChild(chatMessagesElement.firstChild);
             }
         }
         
-        // Reset local chat history using the constant
         chatHistory = [
             [DEFAULT_GREETING, ""]
         ];
         
-        // Update session storage
         saveChatHistory();
         
         try {
-            // Check if API is available before attempting to clear
-            if (window.gradioApi && typeof window.gradioApi.clearChat === 'function') {
-                // Attempt to clear chat history on server via wrapper
+            if (typeof window.gradioApi !== 'undefined' && window.gradioApi && typeof window.gradioApi.clearChat === 'function') {
                 await window.gradioApi.clearChat();
             } else {
-                console.warn("Gradio API not available for clearing chat history on server.");
             }
             
-            // Add initial message back to chat UI
             addBotMessage(DEFAULT_GREETING);
         } catch (error) {
-            // Error during clearChat is already logged by the wrapper
-            
-            
-            // Display error message if element exists
             const errorElement = document.getElementById('chat-error');
             if (errorElement) {
                 errorElement.textContent = "Could not clear server chat history. Local chat cleared.";
                 errorElement.classList.remove('hidden');
             }
-            
-            // Still add the bot message locally
             addBotMessage(DEFAULT_GREETING);
         }
     }
     
-    // Initialize event listeners
     function initEventListeners() {
-        // Send message button click handler
         const sendButton = document.getElementById('send-message-btn');
         if (sendButton) {
             sendButton.addEventListener('click', sendMessage);
         }
         
-        // Send message on Enter key
         const chatInput = document.getElementById('chat-input');
         if (chatInput) {
             chatInput.addEventListener('keydown', function(e) {
@@ -703,21 +690,16 @@ Staying on-topic is essential to maintain patient safety and information integri
             });
         }
         
-        // Clear chat button click handler
         const clearButton = document.getElementById('clear-chat-btn');
         if (clearButton) {
             clearButton.addEventListener('click', clearChatHistory);
         }
         
-        // Clear chat history when the page is unloaded (browser close or refresh)
         window.addEventListener('beforeunload', function() {
-            // We don't need to call clearChatHistory() here as that would try to update the UI
-            // Just clear the session storage is sufficient
             sessionStorage.removeItem('chatHistory');
         });
     }
     
-    // Public API
     return {
         init: function() {
             init();
@@ -730,7 +712,6 @@ Staying on-topic is essential to maintain patient safety and information integri
     };
 })();
 
-// Initialize the chat module when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     MediSenseChat.init();
 });
